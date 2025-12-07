@@ -1,0 +1,1 @@
+ALTER TABLE `timers` DROP COLUMN `temperature`;
