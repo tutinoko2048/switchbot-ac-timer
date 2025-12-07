@@ -14,6 +14,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [timeAgo, setTimeAgo] = useState('');
+  const [editingTimer, setEditingTimer] = useState<Timer | undefined>(undefined);
 
   const fetchData = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -62,7 +63,18 @@ export default function Home() {
 
   const handleSave = () => {
       setIsFormOpen(false);
+      setEditingTimer(undefined);
       fetchData();
+  };
+
+  const handleEditTimer = (timer: Timer) => {
+      setEditingTimer(timer);
+      setIsFormOpen(true);
+  };
+
+  const handleCreateTimer = () => {
+      setEditingTimer(undefined);
+      setIsFormOpen(true);
   };
 
   return (
@@ -72,12 +84,12 @@ export default function Home() {
         <header className="flex justify-between items-center px-4 pb-3 pt-[max(env(safe-area-inset-top),1rem)] sticky top-0 bg-black/90 backdrop-blur-md z-10 border-b border-gray-900 sm:border-none">
             <button 
                 onClick={() => setIsEditing(!isEditing)} 
-                className="text-[#FF9F0A] text-lg"
+                className="text-[#FF9F0A] text-lg z-10"
             >
                 {isEditing ? '完了' : '編集'}
             </button>
-            <h1 className="text-lg font-semibold">アラーム</h1>
-            <button onClick={() => setIsFormOpen(true)} className="text-[#FF9F0A] text-2xl font-light leading-none">+</button>
+            <h1 className="text-lg font-semibold absolute left-1/2 -translate-x-1/2">アラーム</h1>
+            <button onClick={handleCreateTimer} className="text-[#FF9F0A] text-2xl font-light leading-none z-10">+</button>
         </header>
 
         {/* Content */}
@@ -86,7 +98,7 @@ export default function Home() {
             {loading ? (
                 <div className="flex justify-center items-center h-64 text-gray-500">読み込み中...</div>
             ) : (
-                <TimerList timers={timers} devices={devices} onChange={fetchData} isEditing={isEditing} />
+                <TimerList timers={timers} devices={devices} onChange={fetchData} isEditing={isEditing} onEdit={handleEditTimer} />
             )}
             {timeAgo && (
                 <div className="fixed bottom-2 right-2 text-xs text-gray-600 font-mono pointer-events-none z-0">
@@ -97,12 +109,13 @@ export default function Home() {
 
         {/* Modal Form */}
         {isFormOpen && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setIsFormOpen(false)}>
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { setIsFormOpen(false); setEditingTimer(undefined); }}>
                 <div className="w-full h-[85vh] sm:h-auto sm:max-w-md bg-[#1C1C1E] rounded-t-[10px] sm:rounded-xl overflow-hidden shadow-2xl transform transition-all" onClick={e => e.stopPropagation()}>
                     <TimerForm 
                         devices={devices} 
+                        initialData={editingTimer}
                         onSave={handleSave} 
-                        onCancel={() => setIsFormOpen(false)} 
+                        onCancel={() => { setIsFormOpen(false); setEditingTimer(undefined); }} 
                     />
                 </div>
             </div>

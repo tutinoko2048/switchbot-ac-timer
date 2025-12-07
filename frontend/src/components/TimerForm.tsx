@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { client } from '@/lib/client';
-import type { SwitchBotInfraredRemote } from '@/types';
+import type { SwitchBotInfraredRemote, Timer } from '@/types';
 
-export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInfraredRemote[], onSave: () => void, onCancel: () => void }) {
-  const [name, setName] = useState('');
-  const [time, setTime] = useState('07:00');
-  const [weekdays, setWeekdays] = useState<string[]>([]); // 月-金
-  const [deviceId, setDeviceId] = useState('');
+export function TimerForm({ devices, initialData, onSave, onCancel }: { devices: SwitchBotInfraredRemote[], initialData?: Timer, onSave: () => void, onCancel: () => void }) {
+  const [name, setName] = useState(initialData?.name || '');
+  const [time, setTime] = useState(initialData?.time || '07:00');
+  const [weekdays, setWeekdays] = useState<string[]>(initialData?.weekdays ? initialData.weekdays.split(',') : []); // 月-金
+  const [deviceId, setDeviceId] = useState(initialData?.deviceId || '');
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,15 +17,25 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
         return;
     }
     
-    const res = await client.api.timers.$post({
-        json: {
-            name: name || 'アラーム',
-            time,
-            weekdays: weekdays.join(','),
-            deviceId,
-            isActive: true
-        }
-    });
+    const payload = {
+        name: name || 'アラーム',
+        time,
+        weekdays: weekdays.join(','),
+        deviceId,
+        isActive: initialData ? initialData.isActive : true
+    };
+
+    let res;
+    if (initialData) {
+        res = await client.api.timers[':id'].$put({
+            param: { id: initialData.id.toString() },
+            json: payload
+        });
+    } else {
+        res = await client.api.timers.$post({
+            json: payload
+        });
+    }
 
     if (res.ok) {
         onSave();
@@ -82,10 +92,12 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
   return (
     <div className="flex flex-col h-full bg-[#1C1C1E] text-white sm:rounded-xl sm:h-auto sm:max-w-md sm:w-full">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-4 bg-[#1C1C1E] sm:bg-transparent shrink-0">
-        <button onClick={onCancel} className="text-[#FF9F0A] text-base">キャンセル</button>
-        <h2 className="font-bold text-base">アラームを追加</h2>
-        <button onClick={handleSubmit} className="text-[#FF9F0A] font-bold text-base">保存</button>
+      <div className="relative flex justify-between items-center px-4 py-4 bg-[#1C1C1E] sm:bg-transparent shrink-0">
+        <button onClick={onCancel} className="text-[#FF9F0A] text-base z-10">キャンセル</button>
+        <h2 className="font-bold text-base absolute left-1/2 -translate-x-1/2">
+          {initialData ? 'アラームを編集' : 'アラームを追加'}
+        </h2>
+        <button onClick={handleSubmit} className="text-[#FF9F0A] font-bold text-base z-10">保存</button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -102,13 +114,13 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
         {/* Settings Cells */}
         <div className="space-y-4">
             <div className="bg-[#2C2C2E] rounded-lg overflow-hidden">
-                <div className="flex justify-between items-center p-3 border-b border-[#38383A]">
-                    <span className="text-base">ラベル</span>
+                <div className="flex justify-between items-center p-4 border-b border-[#38383A]">
+                    <span className="text-base whitespace-nowrap shrink-0">ラベル</span>
                     <input 
                         type="text" 
                         value={name} 
                         onChange={e => setName(e.target.value)} 
-                        className="bg-transparent text-right text-[#8E8E93] focus:outline-none"
+                        className="bg-transparent text-right text-[#8E8E93] focus:outline-none flex-1 min-w-0 ml-4"
                         placeholder="アラーム"
                     />
                 </div>
@@ -116,12 +128,12 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
                     onClick={() => setIsSelectingDevice(true)}
                     className="w-full flex justify-between items-center p-3 active:bg-[#3A3A3C] transition-colors"
                 >
-                    <span className="text-base">デバイス</span>
-                    <div className="flex items-center gap-2">
-                        <span className="text-[#8E8E93] text-base">
+                    <span className="text-base whitespace-nowrap shrink-0">デバイス</span>
+                    <div className="flex items-center gap-2 flex-1 justify-end min-w-0 ml-4">
+                        <span className="text-[#8E8E93] text-base truncate">
                             {devices.find(d => d.deviceId === deviceId)?.deviceName || '選択してください'}
                         </span>
-                        <span className="text-[#5A5A5E] text-lg">›</span>
+                        <span className="text-[#5A5A5E] text-lg shrink-0">›</span>
                     </div>
                 </button>
             </div>
