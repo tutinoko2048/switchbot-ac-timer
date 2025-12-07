@@ -12,9 +12,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [timeAgo, setTimeAgo] = useState('');
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
         const timersRes = await client.api.timers.$get();
         const devicesRes = await client.api.devices.$get();
@@ -33,15 +35,29 @@ export default function Home() {
                 console.warn('No infrared devices found or API error', data);
             }
         }
+        setLastUpdated(new Date());
+        setTimeAgo('0秒前');
     } catch (e) {
         console.error(e);
     } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
+    const timer = setInterval(() => {
+        if (lastUpdated) {
+            const diff = Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000);
+            setTimeAgo(`${diff}秒前`);
+        }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lastUpdated]);
+
+  useEffect(() => {
     fetchData();
+    const interval = setInterval(() => fetchData(true), 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSave = () => {
@@ -65,12 +81,17 @@ export default function Home() {
         </header>
 
         {/* Content */}
-        <div className="flex-1 px-0 sm:px-4 py-2">
+        <div className="flex-1 px-0 sm:px-4 py-2 relative">
             <h2 className="text-3xl font-bold px-4 mb-4 hidden sm:block">アラーム</h2>
             {loading ? (
                 <div className="flex justify-center items-center h-64 text-gray-500">読み込み中...</div>
             ) : (
                 <TimerList timers={timers} devices={devices} onChange={fetchData} isEditing={isEditing} />
+            )}
+            {timeAgo && (
+                <div className="fixed bottom-2 right-2 text-xs text-gray-600 font-mono pointer-events-none z-0">
+                    Updated: {timeAgo}
+                </div>
             )}
         </div>
 

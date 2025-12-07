@@ -45,5 +45,5 @@ export function startScheduler() {
     } catch (e) {
       console.error('Scheduler error:', e);
     }
-  }, 60000);
+  }, 60_000);
 }
