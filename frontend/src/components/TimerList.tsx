@@ -53,7 +53,7 @@ export function TimerList({ timers, devices, onChange, isEditing }: { timers: Ti
             
             {/* Left Side: Delete Trigger (Minus icon) */}
             <div 
-                className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${isEditing ? 'w-[40px] ml-4 opacity-100' : 'w-0 ml-0 opacity-0'}`}
+                className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${isEditing ? 'w-10 ml-4 opacity-100' : 'w-0 ml-0 opacity-0'}`}
             >
                 <button 
                     onClick={() => setDeletingId(isDeleting ? null : timer.id)}
@@ -76,7 +76,7 @@ export function TimerList({ timers, devices, onChange, isEditing }: { timers: Ti
                     </div>
                     <div className="text-sm text-gray-400 mt-1 truncate">
                         <span className="mr-2 sm:hidden">{timer.name} - {deviceName}</span>
-                        {formatWeekdays(timer.weekdays)}
+                        {/* {formatWeekdays(timer.weekdays)} */}
                     </div>
                 </div>
                 
@@ -103,7 +103,7 @@ export function TimerList({ timers, devices, onChange, isEditing }: { timers: Ti
             
             {/* Slide-in Delete Button */}
             <div 
-                className={`absolute right-0 top-0 bottom-0 bg-red-600 flex items-center justify-center transition-all duration-300 ease-in-out ${isDeleting ? 'w-[80px]' : 'w-0'}`}
+                className={`absolute right-0 top-0 bottom-0 bg-red-600 flex items-center justify-center transition-all duration-300 ease-in-out ${isDeleting ? 'w-20' : 'w-0'}`}
             >
                 <button 
                     onClick={() => handleDelete(timer.id)}

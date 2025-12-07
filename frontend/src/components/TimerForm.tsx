@@ -4,10 +4,10 @@ import { client } from '@/lib/client';
 import type { SwitchBotInfraredRemote } from '@/types';
 
 export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInfraredRemote[], onSave: () => void, onCancel: () => void }) {
-  const [name, setName] = useState('アラーム');
+  const [name, setName] = useState('');
   const [time, setTime] = useState('07:00');
   const [weekdays, setWeekdays] = useState<string[]>([]); // 月-金
-  const [deviceId, setDeviceId] = useState(devices[0]?.deviceId || '');
+  const [deviceId, setDeviceId] = useState('');
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,7 +19,7 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
     
     const res = await client.api.timers.$post({
         json: {
-            name,
+            name: name || 'アラーム',
             time,
             weekdays: weekdays.join(','),
             deviceId,
@@ -126,6 +126,7 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
                 </button>
             </div>
 
+            {/* 繰り返し機能一時無効化
             <div className="bg-[#2C2C2E] rounded-lg overflow-hidden p-2">
                 <div className="mb-2 px-2 text-sm text-[#8E8E93]">繰り返し</div>
                 <div className="flex justify-between px-1">
@@ -143,6 +144,7 @@ export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInf
                     ))}
                 </div>
             </div>
+            */}
         </div>
       </div>
     </div>

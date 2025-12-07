@@ -32,23 +32,26 @@ const routes = app
     }
   })
   .get('/api/timers', async (c) => {
-    const allTimers = await db.select().from(timers).all();
+    const allTimers = db.select().from(timers).all();
     return c.json(allTimers);
   })
   .post('/api/timers', zValidator('json', timerSchema), async (c) => {
     const data = c.req.valid('json');
     const result = await db.insert(timers).values(data).returning();
+    console.log('Created timer:', result);
     return c.json(result[0]);
   })
   .put('/api/timers/:id', zValidator('json', timerSchema), async (c) => {
     const id = parseInt(c.req.param('id'));
     const data = c.req.valid('json');
     const result = await db.update(timers).set(data).where(eq(timers.id, id)).returning();
+    console.log('Updated timer:', result);
     return c.json(result[0]);
   })
   .delete('/api/timers/:id', async (c) => {
     const id = parseInt(c.req.param('id'));
     await db.delete(timers).where(eq(timers.id, id));
+    console.log('Deleted timer with id:', id);
     return c.json({ success: true });
   })
   .post('/api/test/:deviceId', async (c) => {
