@@ -11,6 +11,7 @@ export default function Home() {
   const [devices, setDevices] = useState<SwitchBotInfraredRemote[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -53,7 +54,12 @@ export default function Home() {
       <div className="max-w-2xl mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <header className="flex justify-between items-center px-4 pb-3 pt-[max(env(safe-area-inset-top),1rem)] sticky top-0 bg-black/90 backdrop-blur-md z-10 border-b border-gray-900 sm:border-none">
-            <button className="text-[#FF9F0A] text-lg">編集</button>
+            <button 
+                onClick={() => setIsEditing(!isEditing)} 
+                className="text-[#FF9F0A] text-lg"
+            >
+                {isEditing ? '完了' : '編集'}
+            </button>
             <h1 className="text-lg font-semibold">アラーム</h1>
             <button onClick={() => setIsFormOpen(true)} className="text-[#FF9F0A] text-2xl font-light leading-none">+</button>
         </header>
@@ -64,7 +70,7 @@ export default function Home() {
             {loading ? (
                 <div className="flex justify-center items-center h-64 text-gray-500">読み込み中...</div>
             ) : (
-                <TimerList timers={timers} devices={devices} onChange={fetchData} />
+                <TimerList timers={timers} devices={devices} onChange={fetchData} isEditing={isEditing} />
             )}
         </div>
 
