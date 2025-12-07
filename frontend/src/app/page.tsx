@@ -64,7 +64,7 @@ export default function Home() {
             {loading ? (
                 <div className="flex justify-center items-center h-64 text-gray-500">読み込み中...</div>
             ) : (
-                <TimerList timers={timers} onChange={fetchData} />
+                <TimerList timers={timers} devices={devices} onChange={fetchData} />
             )}
         </div>
 

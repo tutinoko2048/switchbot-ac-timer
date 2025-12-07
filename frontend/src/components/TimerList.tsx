@@ -1,8 +1,8 @@
 'use client';
 import { client } from '@/lib/client';
-import type { Timer } from '@/types';
+import type { Timer, SwitchBotInfraredRemote } from '@/types';
 
-export function TimerList({ timers, onChange }: { timers: Timer[], onChange: () => void }) {
+export function TimerList({ timers, devices, onChange }: { timers: Timer[], devices: SwitchBotInfraredRemote[], onChange: () => void }) {
   const handleDelete = async (id: number) => {
     if (!confirm('このタイマーを削除しますか？')) return;
     await client.api.timers[':id'].$delete({ param: { id: id.toString() } });
@@ -32,7 +32,9 @@ export function TimerList({ timers, onChange }: { timers: Timer[], onChange: () 
 
   return (
     <div className="space-y-px bg-gray-900 rounded-lg overflow-hidden">
-      {timers.map(timer => (
+      {timers.map(timer => {
+        const deviceName = devices.find(d => d.deviceId === timer.deviceId)?.deviceName || '不明なデバイス';
+        return (
         <div key={timer.id} className="group relative flex justify-between items-center p-4 bg-[#1C1C1E] hover:bg-[#2C2C2E] transition-colors">
             <div className="flex flex-col">
                 <div className="flex items-baseline gap-2">
@@ -40,11 +42,11 @@ export function TimerList({ timers, onChange }: { timers: Timer[], onChange: () 
                         {timer.time}
                     </span>
                     <span className="text-sm text-gray-500 hidden sm:inline-block">
-                        {timer.name}
+                        {timer.name} - {deviceName}
                     </span>
                 </div>
                 <div className="text-sm text-gray-400 mt-1">
-                    {timer.name !== 'My Timer' && <span className="mr-2 sm:hidden">{timer.name}</span>}
+                    <span className="mr-2 sm:hidden">{timer.name} - {deviceName}</span>
                     {formatWeekdays(timer.weekdays)}
                 </div>
             </div>
@@ -74,7 +76,7 @@ export function TimerList({ timers, onChange }: { timers: Timer[], onChange: () 
                 ×
             </button>
         </div>
-      ))}
+      );})}
     </div>
   );
 }

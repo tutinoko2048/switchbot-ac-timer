@@ -6,7 +6,7 @@ import type { SwitchBotInfraredRemote } from '@/types';
 export function TimerForm({ devices, onSave, onCancel }: { devices: SwitchBotInfraredRemote[], onSave: () => void, onCancel: () => void }) {
   const [name, setName] = useState('アラーム');
   const [time, setTime] = useState('07:00');
-  const [weekdays, setWeekdays] = useState<string[]>(['1', '2', '3', '4', '5']); // 月-金
+  const [weekdays, setWeekdays] = useState<string[]>([]); // 月-金
   const [deviceId, setDeviceId] = useState(devices[0]?.deviceId || '');
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
 
