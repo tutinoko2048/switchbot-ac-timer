@@ -68,6 +68,6 @@ const routes = app
 export type AppType = typeof routes;
 
 export default {
-    port: 3001,
+    port: process.env.PORT ? parseInt(process.env.PORT) : 3001,
     fetch: app.fetch,
 };
