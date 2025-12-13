@@ -47,8 +47,10 @@ export function TimerList({
     onChange();
   };
 
-  const handleTest = async (deviceId: string) => {
-    await client.api.test[':deviceId'].$post({ param: { deviceId } });
+  const handleTest = async (timer: Timer) => {
+    await client.api.timers[':id'].test.$post({
+      param: { id: timer.id.toString() },
+    });
     alert('コマンドを送信しました！');
   };
 
@@ -125,7 +127,7 @@ export function TimerList({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleTest(timer.deviceId);
+                        handleTest(timer);
                       }}
                       className="text-xs bg-gray-700 text-white px-3 py-1.5 rounded-full hover:bg-gray-600"
                     >

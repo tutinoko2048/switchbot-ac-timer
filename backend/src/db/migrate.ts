@@ -3,9 +3,9 @@ import { db } from './index';
 
 console.log('Migrating...');
 try {
-    migrate(db, { migrationsFolder: './drizzle' });
-    console.log('Migration complete!');
+  migrate(db, { migrationsFolder: './drizzle' });
+  console.log('Migration complete!');
 } catch (error) {
-    console.error('Migration failed:', error);
-    process.exit(1);
+  console.error('Migration failed:', error);
+  process.exit(1);
 }

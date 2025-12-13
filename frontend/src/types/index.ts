@@ -34,3 +34,13 @@ export interface GetDevicesBody {
   deviceList: SwitchBotDevice[];
   infraredRemoteList: SwitchBotInfraredRemote[];
 }
+
+export interface Log {
+  id: number;
+  executedAt: string | null;
+  command: string;
+  status: 'success' | 'failure';
+  errorMessage: string | null;
+  triggerType: 'schedule' | 'manual';
+  timerId: number;
+}

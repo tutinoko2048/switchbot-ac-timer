@@ -1,5 +1,5 @@
 import { db } from './db';
-import { timers } from './db/schema';
+import { timers, logs } from './db/schema';
 import { switchBotClient } from './lib/switchbot';
 import { eq } from 'drizzle-orm';
 
@@ -35,10 +35,24 @@ export function startScheduler() {
             await switchBotClient.sendDeviceControl(timer.deviceId, 'turnOn');
             console.log(`Timer ${timer.id} executed successfully.`);
 
+            await db.insert(logs).values({
+              command: 'turnOn',
+              status: 'success',
+              triggerType: 'schedule',
+              timerId: timer.id,
+            });
+
             // 一度実行したら無効にする
             await db.update(timers).set({ isActive: false }).where(eq(timers.id, timer.id));
-          } catch (e) {
+          } catch (e: any) {
             console.error(`Failed to execute timer ${timer.id}:`, e);
+            await db.insert(logs).values({
+              command: 'turnOn',
+              status: 'failure',
+              errorMessage: e.message,
+              triggerType: 'schedule',
+              timerId: timer.id,
+            });
           }
         }
       }

@@ -15,6 +15,20 @@
       "when": 1765134026968,
       "tag": "0001_many_fabian_cortez",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1765655633608,
+      "tag": "0002_absurd_logan",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1765656641369,
+      "tag": "0003_stale_maginty",
+      "breakpoints": true
     }
   ]
 }
