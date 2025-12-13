@@ -80,7 +80,7 @@ export function TimerForm({
         <div className="flex items-center px-4 py-4 bg-[#1C1C1E] sm:bg-transparent shrink-0 border-b border-[#38383A]">
           <button
             onClick={() => setIsSelectingDevice(false)}
-            className="text-[#FF9F0A] flex items-center gap-1 text-base"
+            className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors flex items-center gap-1 text-base"
           >
             <span className="text-xl">‹</span> 戻る
           </button>
@@ -111,51 +111,51 @@ export function TimerForm({
     <div className="flex flex-col h-full bg-[#1C1C1E] text-white sm:rounded-xl sm:h-auto sm:max-w-md sm:w-full">
       {/* Header */}
       <div className="relative flex justify-between items-center px-4 py-4 bg-[#1C1C1E] sm:bg-transparent shrink-0">
-        <button onClick={onCancel} className="text-[#FF9F0A] text-base z-10">
+        <button onClick={onCancel} className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-base z-10 p-2 -m-2">
           キャンセル
         </button>
         <h2 className="font-bold text-base absolute left-1/2 -translate-x-1/2">
           {initialData ? 'アラームを編集' : 'アラームを追加'}
         </h2>
-        <button onClick={handleSubmit} className="text-[#FF9F0A] font-bold text-base z-10">
+        <button onClick={handleSubmit} className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors font-bold text-base z-10 p-2 -m-2">
           保存
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* Time Picker Area */}
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-8 px-10">
           <input
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className="bg-transparent text-6xl font-light text-center focus:outline-none w-full"
+            className="bg-transparent text-6xl font-light text-center focus:outline-none w-full scheme-dark hover:text-gray-200 transition-colors"
           />
         </div>
 
         {/* Settings Cells */}
         <div className="space-y-4">
           <div className="bg-[#2C2C2E] rounded-lg overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b border-[#38383A]">
+            <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
               <span className="text-base whitespace-nowrap shrink-0">ラベル</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-transparent text-right text-[#8E8E93] focus:outline-none flex-1 min-w-0 ml-4"
+                className="bg-transparent text-right text-[#99999e] focus:outline-none flex-1 min-w-0 ml-4"
                 placeholder="アラーム"
               />
             </div>
             <button
               onClick={() => setIsSelectingDevice(true)}
-              className="w-full flex justify-between items-center p-3 active:bg-[#3A3A3C] transition-colors"
+              className="w-full flex justify-between items-center h-14 px-4 active:bg-[#3A3A3C] transition-colors"
             >
               <span className="text-base whitespace-nowrap shrink-0">デバイス</span>
               <div className="flex items-center gap-2 flex-1 justify-end min-w-0 ml-4">
-                <span className="text-[#8E8E93] text-base truncate">
+                <span className="text-[#99999e] text-base truncate">
                   {devices.find((d) => d.deviceId === deviceId)?.deviceName || '選択してください'}
                 </span>
-                <span className="text-[#5A5A5E] text-lg shrink-0">›</span>
+                <span className="text-[#6b6b70] text-xl font-extrabold shrink-0">›</span>
               </div>
             </button>
           </div>

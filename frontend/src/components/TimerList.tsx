@@ -63,7 +63,7 @@ export function TimerList({
         return (
           <div
             key={timer.id}
-            className="group relative flex items-center bg-[#1C1C1E] transition-colors overflow-hidden cursor-pointer active:bg-[#2C2C2E]"
+            className="group relative flex items-center bg-[#1C1C1E] transition-colors overflow-hidden cursor-pointer hover:bg-[#222224] active:bg-[#222224]"
             onClick={() => onEdit(timer)}
           >
             {/* Left Side: Delete Trigger (Minus icon) */}
@@ -77,20 +77,23 @@ export function TimerList({
                   e.stopPropagation();
                   setDeletingId(isDeleting ? null : timer.id);
                 }}
-                className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center shrink-0"
+                className="w-10 h-10 flex items-center justify-center shrink-0"
               >
-                <div
-                  className={`w-3 h-0.5 bg-white transition-transform duration-300 ${
-                    isDeleting ? 'rotate-90' : ''
-                  }`}
-                />
+                <div className="w-6 h-6 rounded-full bg-[#FF4245] flex items-center justify-center">
+                  <div
+                    className={`w-3 h-0.5 bg-white transition-transform duration-300 ${
+                      isDeleting ? 'rotate-90' : ''
+                    }`}
+                  />
+                </div>
               </button>
             </div>
 
             {/* Main Content */}
             <div className="flex-1 py-4 pr-4 pl-4 flex justify-between items-center min-w-0">
               <div className="flex flex-col min-w-0">
-                <div className="flex items-baseline gap-2">
+                <div className="flex items-baseline gap-4">
+                  {/* Desktop */}
                   <span
                     className={`text-5xl font-light tracking-tight ${
                       timer.isActive ? 'text-white' : 'text-gray-500'
@@ -98,11 +101,12 @@ export function TimerList({
                   >
                     {timer.time}
                   </span>
-                  <span className="text-sm text-gray-500 hidden sm:inline-block truncate">
+                  <span className={`text-md hidden sm:inline-block truncate ${timer.isActive ? 'text-gray-400' : 'text-gray-500'}`}>
                     {timer.name} - {deviceName}
                   </span>
                 </div>
-                <div className="text-sm text-gray-400 mt-1 truncate">
+                {/* Mobile */}
+                <div className={`text-sm mt-1 truncate ${timer.isActive ? 'text-gray-400' : 'text-gray-500'}`}>
                   <span className="mr-2 sm:hidden">
                     {timer.name} - {deviceName}
                   </span>
@@ -154,7 +158,7 @@ export function TimerList({
 
             {/* Slide-in Delete Button */}
             <div
-              className={`absolute right-0 top-0 bottom-0 bg-red-600 flex items-center justify-center transition-all duration-300 ease-in-out ${
+              className={`absolute right-0 top-0 bottom-0 bg-[#FF4245] flex items-center justify-center transition-all duration-300 ease-in-out ${
                 isDeleting ? 'w-20' : 'w-0'
               }`}
             >

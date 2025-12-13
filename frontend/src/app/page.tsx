@@ -82,13 +82,13 @@ export default function Home() {
       <div className="max-w-2xl mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <header className="flex justify-between items-center px-4 pb-3 pt-[max(env(safe-area-inset-top),1rem)] sticky top-0 bg-black/90 backdrop-blur-md z-10 border-b border-gray-900 sm:border-none">
-          <button onClick={() => setIsEditing(!isEditing)} className="text-[#FF9F0A] text-lg z-10">
+          <button onClick={() => setIsEditing(!isEditing)} className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-lg z-10 p-2 -m-2">
             {isEditing ? '完了' : '編集'}
           </button>
           <h1 className="text-lg font-semibold absolute left-1/2 -translate-x-1/2">アラーム</h1>
           <button
             onClick={handleCreateTimer}
-            className="text-[#FF9F0A] text-3xl font-light leading-none z-10"
+            className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-3xl font-light leading-none z-10 p-2 -m-2"
           >
             +
           </button>
