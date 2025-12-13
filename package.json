@@ -1,6 +1,10 @@
 {
   "name": "ac-timer-monorepo",
   "private": true,
+  "scripts": {
+    "frontend": "pnpm -F frontend",
+    "backend": "pnpm -F backend"
+  },
   "devDependencies": {
     "@types/bun": "^1.3.4",
     "typescript": "^5.0.0"
