@@ -32,7 +32,7 @@ const routes = app
     }
   })
   .get('/api/timers', async (c) => {
-    const allTimers = db.select().from(timers).all();
+    const allTimers = db.select().from(timers).orderBy(timers.time).all();
     return c.json(allTimers);
   })
   .get('/api/logs', async (c) => {
