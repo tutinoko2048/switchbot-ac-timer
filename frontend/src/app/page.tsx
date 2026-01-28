@@ -112,7 +112,7 @@ export default function Home() {
               <TimerList
                 timers={timers}
                 devices={devices}
-                onChange={fetchData}
+                onChange={() => fetchData(true)}
                 isEditing={isEditing}
                 onEdit={handleEditTimer}
               />
