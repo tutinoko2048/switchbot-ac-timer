@@ -7,13 +7,13 @@
     "migrate": "bun src/db/migrate.ts"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.7.5",
-    "drizzle-orm": "^0.45.0",
-    "hono": "^4.10.7",
-    "zod": "^4.1.13"
+    "@hono/zod-validator": "^0.7.6",
+    "drizzle-orm": "^0.45.1",
+    "hono": "catalog:",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "better-sqlite3": "^12.5.0",
+    "better-sqlite3": "^12.6.2",
     "drizzle-kit": "^0.31.8"
   }
 }
