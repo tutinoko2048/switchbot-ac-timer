@@ -16,7 +16,7 @@ export function TimerForm({
   onCancel: () => void;
 }) {
   const [name, setName] = useState(initialData?.name || '');
-  const [time, setTime] = useState(initialData?.time || '07:00');
+  const [time, setTime] = useState(initialData?.time || '08:00');
   const [weekdays] = useState<string[]>(
     initialData?.weekdays ? initialData.weekdays.split(',') : []
   ); // 月-金
@@ -55,6 +55,21 @@ export function TimerForm({
       onSave();
     } else {
       alert('保存に失敗しました');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!initialData) return;
+    if (!confirm('このタイマーを削除しますか？')) return;
+
+    const res = await client.api.timers[':id'].$delete({
+      param: { id: initialData.id.toString() },
+    });
+
+    if (res.ok) {
+      onSave();
+    } else {
+      alert('削除に失敗しました');
     }
   };
 
@@ -118,7 +133,7 @@ export function TimerForm({
         </div>
 
         {/* Settings Cells */}
-        <div className="space-y-4">
+        <div>
           <div className="bg-[#2C2C2E] rounded-lg overflow-hidden">
             <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
               <span className="text-base whitespace-nowrap shrink-0">ステータス</span>
@@ -148,27 +163,20 @@ export function TimerForm({
               </div>
             </button>
           </div>
-
-          {/* 繰り返し機能一時無効化
-            <div className="bg-[#2C2C2E] rounded-lg overflow-hidden p-2">
-                <div className="mb-2 px-2 text-sm text-[#8E8E93]">繰り返し</div>
-                <div className="flex justify-between px-1">
-                    {days.map(d => (
-                        <button
-                            key={d.val}
-                            type="button"
-                            onClick={() => toggleDay(d.val)}
-                            className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
-                                weekdays.includes(d.val) ? 'bg-[#FF9F0A] text-black' : 'bg-[#3A3A3C] text-[#8E8E93]'
-                            }`}
-                        >
-                            {d.label[0]}
-                        </button>
-                    ))}
-                </div>
-            </div>
-            */}
         </div>
+        {initialData && (
+          <div className="mt-10">
+            <div className="bg-[#252527] rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="w-full h-14 text-[#FF4245] text-base active:bg-[#3A3A3C] transition-colors"
+              >
+                タイマーを削除
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

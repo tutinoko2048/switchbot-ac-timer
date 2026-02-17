@@ -93,7 +93,7 @@ export function TimerList({
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 py-4 pr-4 pl-4 flex justify-between items-center min-w-0">
+            <div className="flex-1 py-3 pr-4 pl-4 flex justify-between items-center min-w-0">
               <div className="flex flex-col min-w-0">
                 <div className="flex items-baseline gap-4">
                   {/* Desktop */}
