@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { client } from '@/lib/client';
 import type { Timer, SwitchBotInfraredRemote } from '@/types';
+import { ToggleSwitch } from '@/components/ToggleSwitch';
 
 export function TimerList({
   timers,
@@ -139,21 +140,18 @@ export function TimerList({
                 {isEditing ? (
                   <span className="text-[#3A3A3C] text-xl font-bold">›</span>
                 ) : (
-                  <button
+                  <div
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleToggle(timer);
                     }}
-                    className={`w-[51px] h-[31px] rounded-full p-0.5 transition-colors duration-300 ease-in-out ${
-                      timer.isActive ? 'bg-[#34C759]' : 'bg-[#39393D]'
-                    }`}
                   >
-                    <div
-                      className={`bg-white w-[27px] h-[27px] rounded-full shadow-md transform transition-transform duration-300 ease-in-out ${
-                        timer.isActive ? 'translate-x-5' : 'translate-x-0'
-                      }`}
+                    <ToggleSwitch
+                      checked={timer.isActive}
+                      onChange={() => {
+                        handleToggle(timer);
+                      }}
                     />
-                  </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -179,20 +177,4 @@ export function TimerList({
       })}
     </div>
   );
-}
-
-function formatWeekdays(weekdays: string) {
-  const daysMap = ['日', '月', '火', '水', '木', '金', '土'];
-  const days = weekdays
-    .split(',')
-    .map((d) => parseInt(d))
-    .sort();
-
-  if (days.length === 7) return '毎日';
-  if (days.length === 5 && days.includes(1) && days.includes(5) && !days.includes(0) && !days.includes(6))
-    return '平日';
-  if (days.length === 2 && days.includes(0) && days.includes(6)) return '週末';
-  if (days.length === 0) return '一度のみ';
-
-  return days.map((d) => daysMap[d]).join(' ');
 }

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { client } from '@/lib/client';
 import type { SwitchBotInfraredRemote, Timer } from '@/types';
+import { ToggleSwitch } from '@/components/ToggleSwitch';
 
 export function TimerForm({
   devices,
@@ -16,10 +17,11 @@ export function TimerForm({
 }) {
   const [name, setName] = useState(initialData?.name || '');
   const [time, setTime] = useState(initialData?.time || '07:00');
-  const [weekdays, setWeekdays] = useState<string[]>(
+  const [weekdays] = useState<string[]>(
     initialData?.weekdays ? initialData.weekdays.split(',') : []
   ); // 月-金
   const [deviceId, setDeviceId] = useState(initialData?.deviceId || '');
+  const [isActive, setIsActive] = useState(initialData ? initialData.isActive : true);
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +36,7 @@ export function TimerForm({
       time,
       weekdays: weekdays.join(','),
       deviceId,
-      isActive: initialData ? initialData.isActive : true,
+      isActive,
     };
 
     let res;
@@ -55,24 +57,6 @@ export function TimerForm({
       alert('保存に失敗しました');
     }
   };
-
-  const toggleDay = (day: string) => {
-    if (weekdays.includes(day)) {
-      setWeekdays(weekdays.filter((d) => d !== day));
-    } else {
-      setWeekdays([...weekdays, day]);
-    }
-  };
-
-  const days = [
-    { val: '0', label: '日曜日' },
-    { val: '1', label: '月曜日' },
-    { val: '2', label: '火曜日' },
-    { val: '3', label: '水曜日' },
-    { val: '4', label: '木曜日' },
-    { val: '5', label: '金曜日' },
-    { val: '6', label: '土曜日' },
-  ];
 
   if (isSelectingDevice) {
     return (
@@ -137,11 +121,16 @@ export function TimerForm({
         <div className="space-y-4">
           <div className="bg-[#2C2C2E] rounded-lg overflow-hidden">
             <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
+              <span className="text-base whitespace-nowrap shrink-0">ステータス</span>
+              <ToggleSwitch checked={isActive} onChange={setIsActive} />
+            </div>
+            <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
               <span className="text-base whitespace-nowrap shrink-0">ラベル</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onFocus={(e) => e.currentTarget.select()}
                 className="bg-transparent text-right text-[#99999e] focus:outline-none flex-1 min-w-0 ml-4"
                 placeholder="アラーム"
               />
