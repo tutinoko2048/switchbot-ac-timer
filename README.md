@@ -106,3 +106,32 @@ cd frontend
 pnpm build
 pnpm start
 ```
+
+## 🐳 Docker Compose (Nginx Reverse Proxy)
+
+本番向けに、Nginxをフロントに置いて同一オリジン運用できます。
+
+- `/` は frontend コンテナへ
+- `/api/*` は backend コンテナへ
+
+### 1. 環境変数を準備
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+`backend/.env` に SwitchBot の値を設定してください。
+
+### 2. 起動
+
+```bash
+docker compose up -d --build
+```
+
+アクセス先: `http://localhost`
+
+### 3. 停止
+
+```bash
+docker compose down
+```
