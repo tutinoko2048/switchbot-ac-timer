@@ -151,7 +151,7 @@ function Home() {
             showCloseButton={false}
             aria-describedby={undefined}
             onOpenAutoFocus={(e) => e.preventDefault()}
-            className={`${sheetClassName} h-[85dvh] sm:h-auto sm:max-w-md sm:rounded-xl`}
+            className={`${sheetClassName} h-[95dvh] sm:h-auto sm:max-w-md sm:rounded-xl`}
           >
             <TimerForm
               devices={devices}
