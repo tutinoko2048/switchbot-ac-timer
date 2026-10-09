@@ -1,137 +1,93 @@
 # AC Timer (SwitchBot Scheduler)
 
 SwitchBotデバイス（主にエアコン）をスケジュール制御するためのWebアプリケーションです。
-指定した曜日・時刻に自動でデバイスをONにするタイマー機能を提供します。
+指定した時刻に自動でデバイスをONにするタイマー機能を提供します。
 
 ## ✨ Features
 
 - **デバイス一覧取得**: SwitchBot APIから赤外線リモコンデバイスを取得
-- **タイマー設定**: 曜日指定、時刻指定での自動実行スケジュール作成
-- **バックグラウンド実行**: バックエンドのスケジューラによる定期実行
+- **タイマー設定**: 時刻指定での自動実行スケジュール作成
+- **バックグラウンド実行**: サーバー内のスケジューラによる定期実行
 - **手動実行**: 動作確認用の手動実行機能
+- **PWA**: ホーム画面に追加して使える
 
 ## 🛠 Tech Stack
 
-### Frontend
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **HTTP Client**: Hono Client (RPC)
-
-### Backend
-- **Runtime**: [Bun](https://bun.sh/)
-- **Framework**: [Hono](https://hono.dev/)
-- **Database**: SQLite
-- **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
-- **External API**: SwitchBot API v1.1
+- **Frontend**: React + [TanStack Router](https://tanstack.com/router) + [TanStack Query](https://tanstack.com/query), Tailwind CSS
+- **API**: [Hono](https://hono.dev/)（RPC でフロントと型を共有）
+- **Database**: SQLite（better-sqlite3）+ [Drizzle ORM](https://orm.drizzle.team/)
+- **Runtime**: Node.js + [Nub](https://nubjs.com/)（TypeScript を直接実行）
+- **Toolchain**: [Vite+](https://viteplus.dev/)（dev / build / lint / fmt）
+- **Process Manager**: pm2
 
 ## 📂 Project Structure
 
-This project is a monorepo managed by `pnpm`.
-
 ```
 .
-├── backend/    # Hono API Server & Scheduler
-└── frontend/   # Next.js Web Application
+├── index.html
+├── vite.config.ts        # Vite+ の設定（dev / build / lint / fmt）
+├── ecosystem.config.cjs  # pm2 の設定
+├── drizzle/              # マイグレーション
+├── public/               # sw.js, manifest.webmanifest, アイコン
+└── src/
+    ├── client/           # React アプリ（routes/ がファイルベースのルーティング）
+    └── server/
+        ├── app.ts        # Hono のルートと AppType（開発サーバーはここを読む）
+        ├── main.ts       # 本番用の入口（配信・スケジューラー）
+        ├── env.ts        # 環境変数の検証
+        ├── scheduler.ts
+        └── db/
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) (for backend runtime)
-- [pnpm](https://pnpm.io/) (package manager)
-- SwitchBot API Token & Secret (Get them from the SwitchBot App)
+- Node.js
+- [pnpm](https://pnpm.io/)
+- SwitchBot API Token & Secret（SwitchBot アプリから取得）
 
-### Installation
+### Setup
 
-1.  **Install Dependencies**
-    ```bash
-    pnpm install
-    ```
+```bash
+pnpm install
+cp .env.example .env
+```
 
-2.  **Backend Setup**
-    
-    Create `.env` file in `backend/` directory based on `.env.example`.
-    
-    ```bash
-    cp backend/.env.example backend/.env
-    ```
-    
-    Edit `backend/.env` and set your SwitchBot credentials:
-    ```env
-    SWITCHBOT_TOKEN=your_token_here
-    SWITCHBOT_SECRET=your_secret_here
-    ```
+`.env` に SwitchBot の値を設定します。
 
-    Initialize the SQLite database:
-    ```bash
-    cd backend
-    pnpm run migrate
-    ```
+```env
+SWITCHBOT_TOKEN=your_token_here
+SWITCHBOT_SECRET=your_secret_here
+# PORT=3001
+# DB_PATH=/path/to/sqlite.db  # 省略時はリポジトリ直下の sqlite.db
+```
 
-3.  **Run Development Servers**
+DB のマイグレーションは起動時に自動で実行されます。
 
-    You need to run both backend and frontend terminals.
+### Development
 
-    **Backend** (Terminal 1):
-    ```bash
-    cd backend
-    pnpm dev
-    ```
-    Server runs on: http://localhost:3001
+```bash
+pnpm dev
+```
 
-    **Frontend** (Terminal 2):
-    ```bash
-    cd frontend
-    pnpm dev
-    ```
-    App runs on: http://localhost:3000
+UI と `/api` が1つの開発サーバーで動きます（http://localhost:5173）。
+開発中はスケジューラーは起動しません。
+
+### Lint / Format
+
+```bash
+pnpm check   # format・lint・型チェックをまとめて実行
+pnpm lint
+pnpm fmt
+```
 
 ## 🚢 Production
 
-### Backend
-
 ```bash
-cd backend
-pnpm start
-```
-
-### Frontend
-
-Next.jsアプリケーションをビルドしてから起動
-
-```bash
-cd frontend
 pnpm build
-pnpm start
+pm2 start ecosystem.config.cjs
 ```
 
-## 🐳 Docker Compose (Nginx Reverse Proxy)
-
-本番向けに、Nginxをフロントに置いて同一オリジン運用できます。
-
-- `/` は frontend コンテナへ
-- `/api/*` は backend コンテナへ
-
-### 1. 環境変数を準備
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-`backend/.env` に SwitchBot の値を設定してください。
-
-### 2. 起動
-
-```bash
-docker compose up -d --build
-```
-
-アクセス先: `http://localhost`
-
-### 3. 停止
-
-```bash
-docker compose down
-```
+`nub src/server/main.ts` が `/api`・ビルド済みの UI・スケジューラーを1プロセスで動かします。
+更新時は `pnpm build` の後に `pm2 restart ac-timer` します。
