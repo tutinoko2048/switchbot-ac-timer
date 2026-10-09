@@ -10,6 +10,19 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
 
   return {
+    lint: {
+      ignorePatterns: ['dist/**', 'src/client/routeTree.gen.ts'],
+      plugins: ['typescript', 'react', 'unicorn', 'oxc', 'import'],
+      options: {
+        typeAware: true,
+        typeCheck: true,
+      },
+    },
+    fmt: {
+      singleQuote: true,
+      printWidth: 120,
+      ignorePatterns: ['src/client/routeTree.gen.ts', 'drizzle/**', 'pnpm-lock.yaml'],
+    },
     resolve: {
       tsconfigPaths: true,
     },

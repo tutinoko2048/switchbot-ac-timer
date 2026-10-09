@@ -6,7 +6,9 @@
     "dev": "vp dev",
     "build": "vp build",
     "start": "nub src/server/main.ts",
-    "typecheck": "tsc -p tsconfig.client.json && tsc -p tsconfig.server.json",
+    "lint": "vp lint",
+    "fmt": "vp fmt",
+    "check": "vp check",
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
