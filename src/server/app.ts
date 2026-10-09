@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { db } from './db';
@@ -8,8 +7,6 @@ import { eq, desc } from 'drizzle-orm';
 import { switchBotClient } from './lib/switchbot';
 
 const app = new Hono();
-
-app.use('/*', cors());
 
 const timerSchema = z.object({
   name: z.string().default('My Timer'),
@@ -85,6 +82,9 @@ const routes = app
       return c.json({ error: e.message }, 500);
     }
   });
+
+// 該当するルートがない /api/* は、SPA の index.html ではなく JSON の404を返す
+app.all('/api/*', (c) => c.json({ error: 'Not Found' }, 404));
 
 export type AppType = typeof routes;
 

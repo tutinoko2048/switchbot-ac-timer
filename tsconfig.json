@@ -1,13 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "types": ["node"],
-    "skipLibCheck": true,
-    "noEmit": true,
-    "module": "esnext",
-    "target": "es2024",
-    "moduleResolution": "bundler",
-    "isolatedModules": true
-  },
-  "include": ["src/server", "drizzle.config.ts"]
+  "files": [],
+  "references": [{ "path": "./tsconfig.client.json" }, { "path": "./tsconfig.server.json" }]
 }

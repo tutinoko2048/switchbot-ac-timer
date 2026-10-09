@@ -2,5 +2,6 @@ allowBuilds:
   "@nubjs/nub": true
   better-sqlite3: true
   esbuild: true
-  sharp: true
-  unrs-resolver: true
+
+overrides:
+  vite: npm:@voidzero-dev/vite-plus-core@^1.1.0

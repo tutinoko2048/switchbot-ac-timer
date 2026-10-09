@@ -5,7 +5,4 @@ node_modules/
 
 sqlite.db
 *.tsbuildinfo
-
-# Next.js (移行が終わったら削除)
-.next/
-next-env.d.ts
+dist/

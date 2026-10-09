@@ -62,7 +62,7 @@ export class SwitchBotClient {
         const text = await response.text();
         throw new Error(`SwitchBot API Error: ${response.status} ${text}`);
     }
-    return response.json();
+    return response.json() as Promise<SwitchBotResponse<GetDevicesBody>>;
   }
 
 

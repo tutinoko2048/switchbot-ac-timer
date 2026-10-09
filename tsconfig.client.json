@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2024", "dom", "dom.iterable"],
+    // lib/api.ts が AppType のために src/server を読み込むので node の型も必要
+    "types": ["vite/client", "node"],
+    "jsx": "react-jsx",
+    "noUncheckedSideEffectImports": false,
+    "paths": {
+      "@/*": ["./src/client/*"]
+    }
+  },
+  "include": ["src/client"]
+}

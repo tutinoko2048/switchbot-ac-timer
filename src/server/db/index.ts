@@ -7,6 +7,5 @@ import * as schema from './schema';
 const sqlite = new Database(env.DB_PATH);
 export const db = drizzle(sqlite, { schema });
 
-export function runMigrations() {
-  migrate(db, { migrationsFolder });
-}
+// 開発サーバーと本番の両方で、DB を使う前にマイグレーションを済ませる
+migrate(db, { migrationsFolder });

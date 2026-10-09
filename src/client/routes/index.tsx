@@ -1,13 +1,16 @@
-'use client';
-
+import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { client } from '@/lib/client';
+import { client } from '@/lib/api';
 import { TimerForm } from '@/components/TimerForm';
 import { TimerList } from '@/components/TimerList';
 import { LogList } from '@/components/LogList';
 import type { Timer, SwitchBotInfraredRemote, SwitchBotResponse, GetDevicesBody, Log } from '@/types';
 
-export default function Home() {
+export const Route = createFileRoute('/')({
+  component: Home,
+});
+
+function Home() {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [devices, setDevices] = useState<SwitchBotInfraredRemote[]>([]);

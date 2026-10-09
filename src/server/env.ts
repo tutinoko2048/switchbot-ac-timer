@@ -13,3 +13,4 @@ const envSchema = z.object({
 export const env = envSchema.parse(process.env);
 
 export const migrationsFolder = `${rootDir}drizzle`;
+export const distDir = `${rootDir}dist`;

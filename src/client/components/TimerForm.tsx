@@ -1,6 +1,5 @@
-'use client';
 import { useState } from 'react';
-import { client } from '@/lib/client';
+import { client } from '@/lib/api';
 import type { SwitchBotInfraredRemote, Timer } from '@/types';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
 
