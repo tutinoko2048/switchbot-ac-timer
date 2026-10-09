@@ -118,11 +118,19 @@
 - Nub に watch モードがあるか、pm2 の `interpreter` として指定できるか
 - oxlint の react-hooks ルールが React Compiler 用のルールまでカバーしているか（`@tanstack/eslint-plugin-router` は諦める予定）
 
+## 確認結果
+
+- Vite+ 1.1 の上で `@vitejs/plugin-react` v6 + `@rolldown/plugin-babel` + `reactCompilerPreset()` と `@hono/vite-dev-server` が動いた。プラグインのために `vite` を `@voidzero-dev/vite-plus-core` に override している
+- Nub は Node のフラグをそのまま渡すので `nub --watch` が使える。pm2 では `interpreter` に `node_modules/.bin/nub` を指定して起動・停止できた
+- oxlint に React Compiler 用のルールはない。`typeAware` と `typeCheck` を有効にして、型チェックも `vp check` で行う
+- better-sqlite3 は外部キー制約が既定で有効なため、以前（bun:sqlite）と同じく無効にした
+- マイグレーションは `main.ts` ではなく DB の読み込み時に実行し、開発サーバーでも適用されるようにした
+
 ## 完了の基準
 
-- [ ] `vp dev` で、一覧の表示・作成・編集・削除・有効/無効の切り替え・手動実行ができ、10秒ごとに自動更新される
-- [ ] `vp check`（fmt・lint・型チェック）がエラーなしで通る
-- [ ] `vp build` の後に `nub src/server/main.ts` で起動でき、`/`、直接開いた URL、`/api`、存在しない `/api` の404がすべて正しく返る
+- [x] `vp dev` で、一覧の表示・作成・編集・削除・有効/無効の切り替え・手動実行ができ、10秒ごとに自動更新される
+- [x] `vp check`（fmt・lint・型チェック）がエラーなしで通る
+- [x] `vp build` の後に `nub src/server/main.ts` で起動でき、`/`、直接開いた URL、`/api`、存在しない `/api` の404がすべて正しく返る
 - [ ] 本番でスケジューラーが時刻どおりにタイマーを実行する
 - [ ] PWA としてインストールでき、デプロイ後に古い SW から新しい SW に切り替わる
 

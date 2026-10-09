@@ -1,30 +1,32 @@
 # SwitchBot エアコン オンタイマー Web アプリ開発計画
 
+> 最初の開発計画です。その後 Next.js / Bun の構成から、Vite+ / TanStack Router / Node + Nub の1パッケージ構成に移行しました（[docs/migration-plan.md](docs/migration-plan.md)）。
+> 現在の構成は README を参照してください。
+
 ## 1. プロジェクト構成
 
-フロントエンドとバックエンドを分離した構成とします。
+1パッケージの構成で、UI と API を1つのプロセスで動かします。
 
-- Root
-  - `frontend/` (Next.js, Node.js, pnpm)
-  - `backend/` (Hono, Bun, SQLite)
+- `src/client/` (React, TanStack Router)
+- `src/server/` (Hono, SQLite, スケジューラー)
 
 ## 2. 技術スタック
 
 - **Package Manager**: pnpm
+- **Toolchain**: Vite+
 
-### Backend
+### Server
 
-- **Runtime**: Bun
+- **Runtime**: Node.js + Nub
 - **Framework**: Hono
-- **Database**: SQLite (`bun:sqlite`)
+- **Database**: SQLite (`better-sqlite3`)
 - **ORM**: Drizzle ORM
 - **API**: SwitchBot API v1.1
 
-### Frontend
+### Client
 
-- **Runtime**: Node.js
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS (Next.js デフォルト)
+- **Framework**: React + TanStack Router + TanStack Query
+- **Styling**: Tailwind CSS
 - **Communication**: Hono RPC (型安全なAPI通信)
 
 ## 3. 機能要件
