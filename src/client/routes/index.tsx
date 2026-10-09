@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { devicesQuery, logsQuery, timersQuery } from '@/lib/queries';
 import type { Timer } from '@/types';
 
-// スマホでは下から出るシート、sm 以上では中央のダイアログとして表示する
+// スマホでは下から出るシート、sm 以上では中央のダイアログとして表示する。
+// 高さは dvh で指定する (vh だと iOS Safari のアドレスバー表示中にシートの上端が画面外にはみ出る)
 // 開いた時に先頭のボタンへフォーカスリングが出ないよう、各シートで onOpenAutoFocus を止めている
 const sheetClassName =
   'top-auto bottom-0 left-0 translate-x-0 translate-y-0 w-full max-w-none flex flex-col gap-0 p-0 text-base bg-[#1C1C1E] text-white rounded-t-[10px] rounded-b-none ring-0 shadow-2xl overflow-hidden sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 max-sm:duration-300 max-sm:data-open:zoom-in-100 max-sm:data-closed:zoom-out-100 max-sm:data-open:slide-in-from-bottom max-sm:data-closed:slide-out-to-bottom';
@@ -124,7 +125,7 @@ function Home() {
             showCloseButton={false}
             aria-describedby={undefined}
             onOpenAutoFocus={(e) => e.preventDefault()}
-            className={`${sheetClassName} h-[70vh] md:hidden`}
+            className={`${sheetClassName} h-[70dvh] md:hidden`}
           >
             <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-[#2C2C2E]">
               <DialogTitle className="text-lg font-bold leading-normal">実行ログ</DialogTitle>
@@ -150,7 +151,7 @@ function Home() {
             showCloseButton={false}
             aria-describedby={undefined}
             onOpenAutoFocus={(e) => e.preventDefault()}
-            className={`${sheetClassName} h-[85vh] sm:h-auto sm:max-w-md sm:rounded-xl`}
+            className={`${sheetClassName} h-[85dvh] sm:h-auto sm:max-w-md sm:rounded-xl`}
           >
             <TimerForm
               devices={devices}
