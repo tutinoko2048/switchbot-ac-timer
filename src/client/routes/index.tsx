@@ -1,81 +1,44 @@
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { client } from '@/lib/api';
 import { TimerForm } from '@/components/TimerForm';
 import { TimerList } from '@/components/TimerList';
 import { LogList } from '@/components/LogList';
-import type { Timer, SwitchBotInfraredRemote, SwitchBotResponse, GetDevicesBody, Log } from '@/types';
+import { devicesQuery, logsQuery, timersQuery } from '@/lib/queries';
+import type { Timer } from '@/types';
 
 export const Route = createFileRoute('/')({
   component: Home,
 });
 
+function useNow(intervalMs: number) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
 function Home() {
-  const [timers, setTimers] = useState<Timer[]>([]);
-  const [logs, setLogs] = useState<Log[]>([]);
-  const [devices, setDevices] = useState<SwitchBotInfraredRemote[]>([]);
-  const [loading, setLoading] = useState(true);
+  const timersResult = useQuery(timersQuery);
+  const { data: logs = [] } = useQuery(logsQuery);
+  const { data: devices = [] } = useQuery(devicesQuery);
+  const timers = timersResult.data ?? [];
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [timeAgo, setTimeAgo] = useState('');
   const [editingTimer, setEditingTimer] = useState<Timer | undefined>(undefined);
 
-  const fetchData = async (silent = false) => {
-    if (!silent) setLoading(true);
-    try {
-      const timersRes = await client.api.timers.$get();
-      const devicesRes = await client.api.devices.$get();
-      const logsRes = await client.api.logs.$get();
-
-      if (timersRes.ok) {
-        const data = await timersRes.json();
-        setTimers(data);
-      }
-      if (logsRes.ok) {
-        const data = await logsRes.json();
-        setLogs(data);
-      }
-      if (devicesRes.ok) {
-        const data = await devicesRes.json();
-        if (data.body && data.body.infraredRemoteList) {
-          // const acs = data.body.infraredRemoteList.filter((d) => d.remoteType === 'Air Conditioner');
-          const acs = data.body.infraredRemoteList;
-          setDevices(acs);
-        } else {
-          console.warn('No infrared devices found or API error', data);
-        }
-      }
-      setLastUpdated(new Date());
-      setTimeAgo('0秒前');
-    } catch (e) {
-      console.error(e);
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (lastUpdated) {
-        const diff = Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000);
-        setTimeAgo(`${diff}秒前`);
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [lastUpdated]);
-
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(() => fetchData(true), 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const now = useNow(1000);
+  const timeAgo = timersResult.dataUpdatedAt
+    ? `${Math.max(0, Math.floor((now - timersResult.dataUpdatedAt) / 1000))}秒前`
+    : '';
 
   const handleSave = () => {
     setIsFormOpen(false);
     setEditingTimer(undefined);
-    fetchData();
   };
 
   const handleEditTimer = (timer: Timer) => {
@@ -109,13 +72,12 @@ function Home() {
         <div className="flex-1 px-0 sm:px-4 py-2 relative flex flex-col md:flex-row gap-6">
           <div className="flex-1">
             <h2 className="text-3xl font-bold px-4 mb-4 hidden sm:block">アラーム</h2>
-            {loading ? (
+            {timersResult.isPending ? (
               <div className="flex justify-center items-center h-64 text-gray-500">読み込み中...</div>
             ) : (
               <TimerList
                 timers={timers}
                 devices={devices}
-                onChange={() => fetchData(true)}
                 isEditing={isEditing}
                 onEdit={handleEditTimer}
               />

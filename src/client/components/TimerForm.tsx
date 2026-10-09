@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { client } from '@/lib/api';
+import { useDeleteTimer, useSaveTimer } from '@/lib/queries';
 import type { SwitchBotInfraredRemote, Timer } from '@/types';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
 
@@ -22,8 +22,10 @@ export function TimerForm({
   const [deviceId, setDeviceId] = useState(initialData?.deviceId || '');
   const [isActive, setIsActive] = useState(initialData ? initialData.isActive : true);
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
+  const saveTimer = useSaveTimer();
+  const deleteTimer = useDeleteTimer();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!deviceId) {
       alert('デバイスを選択してください');
@@ -38,38 +40,23 @@ export function TimerForm({
       isActive,
     };
 
-    let res;
-    if (initialData) {
-      res = await client.api.timers[':id'].$put({
-        param: { id: initialData.id.toString() },
-        json: payload,
-      });
-    } else {
-      res = await client.api.timers.$post({
-        json: payload,
-      });
-    }
-
-    if (res.ok) {
-      onSave();
-    } else {
-      alert('保存に失敗しました');
-    }
+    saveTimer.mutate(
+      { id: initialData?.id, input: payload },
+      {
+        onSuccess: onSave,
+        onError: () => alert('保存に失敗しました'),
+      },
+    );
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!initialData) return;
     if (!confirm('このタイマーを削除しますか？')) return;
 
-    const res = await client.api.timers[':id'].$delete({
-      param: { id: initialData.id.toString() },
+    deleteTimer.mutate(initialData.id, {
+      onSuccess: onSave,
+      onError: () => alert('削除に失敗しました'),
     });
-
-    if (res.ok) {
-      onSave();
-    } else {
-      alert('削除に失敗しました');
-    }
   };
 
   if (isSelectingDevice) {

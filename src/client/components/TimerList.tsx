@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { client } from '@/lib/api';
+import { useDeleteTimer, useSaveTimer, useTestTimer } from '@/lib/queries';
 import type { Timer, SwitchBotInfraredRemote } from '@/types';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
 
 export function TimerList({
   timers,
   devices,
-  onChange,
   isEditing,
   onEdit,
 }: {
   timers: Timer[];
   devices: SwitchBotInfraredRemote[];
-  onChange: () => void;
   isEditing: boolean;
   onEdit: (timer: Timer) => void;
 }) {
@@ -26,17 +24,19 @@ export function TimerList({
     }
   }
 
-  const handleDelete = async (id: number) => {
+  const deleteTimer = useDeleteTimer();
+  const saveTimer = useSaveTimer();
+  const testTimer = useTestTimer();
+
+  const handleDelete = (id: number) => {
     // if (!confirm('このタイマーを削除しますか？')) return; // iOS style doesn't confirm with alert, just deletes
-    await client.api.timers[':id'].$delete({ param: { id: id.toString() } });
-    onChange();
-    setDeletingId(null);
+    deleteTimer.mutate(id, { onSettled: () => setDeletingId(null) });
   };
 
-  const handleToggle = async (timer: Timer) => {
-    await client.api.timers[':id'].$put({
-      param: { id: timer.id.toString() },
-      json: {
+  const handleToggle = (timer: Timer) => {
+    saveTimer.mutate({
+      id: timer.id,
+      input: {
         name: timer.name,
         time: timer.time,
         weekdays: timer.weekdays,
@@ -44,14 +44,13 @@ export function TimerList({
         isActive: !timer.isActive,
       },
     });
-    onChange();
   };
 
-  const handleTest = async (timer: Timer) => {
-    await client.api.timers[':id'].test.$post({
-      param: { id: timer.id.toString() },
+  const handleTest = (timer: Timer) => {
+    testTimer.mutate(timer.id, {
+      onSuccess: () => alert('コマンドを送信しました！'),
+      onError: () => alert('コマンドの送信に失敗しました'),
     });
-    alert('コマンドを送信しました！');
   };
 
   if (timers.length === 0) return <div className="text-center text-gray-500 mt-10">アラームはありません</div>;
