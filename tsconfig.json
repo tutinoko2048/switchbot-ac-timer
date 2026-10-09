@@ -1,4 +1,10 @@
 {
   "files": [],
-  "references": [{ "path": "./tsconfig.client.json" }, { "path": "./tsconfig.server.json" }]
+  "references": [{ "path": "./tsconfig.client.json" }, { "path": "./tsconfig.server.json" }],
+  // shadcn CLI がエイリアスを解決するために参照する (実際の設定は tsconfig.client.json)
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/client/*"]
+    }
+  }
 }

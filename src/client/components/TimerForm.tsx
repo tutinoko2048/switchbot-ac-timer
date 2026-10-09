@@ -1,7 +1,20 @@
 import { useState } from 'react';
 import { useDeleteTimer, useSaveTimer } from '@/lib/queries';
 import type { SwitchBotInfraredRemote, Timer } from '@/types';
-import { ToggleSwitch } from '@/components/ToggleSwitch';
+import { toast } from 'sonner';
+import { DialogTitle } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export function TimerForm({
   devices,
@@ -26,7 +39,7 @@ export function TimerForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!deviceId) {
-      alert('デバイスを選択してください');
+      toast.error('デバイスを選択してください');
       return;
     }
 
@@ -42,18 +55,17 @@ export function TimerForm({
       { id: initialData?.id, input: payload },
       {
         onSuccess: onSave,
-        onError: () => alert('保存に失敗しました'),
+        onError: () => toast.error('保存に失敗しました'),
       },
     );
   };
 
   const handleDelete = () => {
     if (!initialData) return;
-    if (!confirm('このタイマーを削除しますか？')) return;
 
     deleteTimer.mutate(initialData.id, {
       onSuccess: onSave,
-      onError: () => alert('削除に失敗しました'),
+      onError: () => toast.error('削除に失敗しました'),
     });
   };
 
@@ -67,7 +79,7 @@ export function TimerForm({
           >
             <span className="text-xl">‹</span> 戻る
           </button>
-          <h2 className="font-bold text-base mx-auto pr-16">デバイスを選択</h2>
+          <DialogTitle className="font-bold text-base leading-normal mx-auto pr-16">デバイスを選択</DialogTitle>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
           <div className="bg-[#2C2C2E] rounded-lg overflow-hidden space-y-px">
@@ -100,9 +112,9 @@ export function TimerForm({
         >
           キャンセル
         </button>
-        <h2 className="font-bold text-base absolute left-1/2 -translate-x-1/2">
+        <DialogTitle className="font-bold text-base leading-normal absolute left-1/2 -translate-x-1/2">
           {initialData ? 'アラームを編集' : 'アラームを追加'}
-        </h2>
+        </DialogTitle>
         <button
           onClick={handleSubmit}
           className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors font-bold text-base z-10 p-2 -m-2"
@@ -127,7 +139,7 @@ export function TimerForm({
           <div className="bg-[#2C2C2E] rounded-lg overflow-hidden">
             <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
               <span className="text-base whitespace-nowrap shrink-0">ステータス</span>
-              <ToggleSwitch checked={isActive} onChange={setIsActive} />
+              <Switch checked={isActive} onCheckedChange={setIsActive} />
             </div>
             <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
               <span className="text-base whitespace-nowrap shrink-0">ラベル</span>
@@ -157,13 +169,34 @@ export function TimerForm({
         {initialData && (
           <div className="mt-10">
             <div className="bg-[#252527] rounded-lg overflow-hidden">
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="w-full h-14 text-[#FF4245] text-base active:bg-[#3A3A3C] transition-colors"
-              >
-                タイマーを削除
-              </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-full h-14 text-[#FF4245] text-base active:bg-[#3A3A3C] transition-colors"
+                  >
+                    タイマーを削除
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent size="sm">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>このタイマーを削除しますか？</AlertDialogTitle>
+                    <AlertDialogDescription>この操作は取り消せません。</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel variant="ghost" className="text-base text-primary hover:text-primary">
+                      キャンセル
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      variant="ghost"
+                      className="text-base font-bold text-destructive hover:text-destructive"
+                      onClick={handleDelete}
+                    >
+                      削除
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         )}

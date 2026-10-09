@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useDeleteTimer, useSaveTimer, useTestTimer } from '@/lib/queries';
 import type { Timer, SwitchBotInfraredRemote } from '@/types';
-import { ToggleSwitch } from '@/components/ToggleSwitch';
+import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 
 export function TimerList({
   timers,
@@ -48,8 +49,8 @@ export function TimerList({
 
   const handleTest = (timer: Timer) => {
     testTimer.mutate(timer.id, {
-      onSuccess: () => alert('コマンドを送信しました！'),
-      onError: () => alert('コマンドの送信に失敗しました'),
+      onSuccess: () => toast.success('コマンドを送信しました'),
+      onError: () => toast.error('コマンドの送信に失敗しました'),
     });
   };
 
@@ -141,12 +142,7 @@ export function TimerList({
                       e.stopPropagation();
                     }}
                   >
-                    <ToggleSwitch
-                      checked={timer.isActive}
-                      onChange={() => {
-                        handleToggle(timer);
-                      }}
-                    />
+                    <Switch checked={timer.isActive} onCheckedChange={() => handleToggle(timer)} />
                   </div>
                 )}
               </div>

@@ -4,8 +4,14 @@ import { useEffect, useState } from 'react';
 import { TimerForm } from '@/components/TimerForm';
 import { TimerList } from '@/components/TimerList';
 import { LogList } from '@/components/LogList';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { devicesQuery, logsQuery, timersQuery } from '@/lib/queries';
 import type { Timer } from '@/types';
+
+// スマホでは下から出るシート、sm 以上では中央のダイアログとして表示する
+// 開いた時に先頭のボタンへフォーカスリングが出ないよう、各シートで onOpenAutoFocus を止めている
+const sheetClassName =
+  'top-auto bottom-0 left-0 translate-x-0 translate-y-0 w-full max-w-none flex flex-col gap-0 p-0 text-base bg-[#1C1C1E] text-white rounded-t-[10px] rounded-b-none ring-0 shadow-2xl overflow-hidden sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 max-sm:duration-300 max-sm:data-open:zoom-in-100 max-sm:data-closed:zoom-out-100 max-sm:data-open:slide-in-from-bottom max-sm:data-closed:slide-out-to-bottom';
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -113,53 +119,50 @@ function Home() {
         </button>
 
         {/* Mobile Log Modal */}
-        {isLogModalOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm md:hidden"
-            onClick={() => setIsLogModalOpen(false)}
+        <Dialog open={isLogModalOpen} onOpenChange={setIsLogModalOpen}>
+          <DialogContent
+            showCloseButton={false}
+            aria-describedby={undefined}
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            className={`${sheetClassName} h-[70vh] md:hidden`}
           >
-            <div
-              className="w-full h-[70vh] bg-[#1C1C1E] rounded-t-[10px] overflow-hidden shadow-2xl flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-[#2C2C2E]">
-                <h2 className="text-lg font-bold">実行ログ</h2>
-                <button onClick={() => setIsLogModalOpen(false)} className="text-gray-400 p-2">
-                  ✕
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                <LogList logs={logs} devices={devices} timers={timers} />
-              </div>
+            <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-[#2C2C2E]">
+              <DialogTitle className="text-lg font-bold leading-normal">実行ログ</DialogTitle>
+              <button onClick={() => setIsLogModalOpen(false)} className="text-gray-400 p-2">
+                ✕
+              </button>
             </div>
-          </div>
-        )}
+            <div className="flex-1 overflow-y-auto p-4">
+              <LogList logs={logs} devices={devices} timers={timers} />
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Modal Form */}
-        {isFormOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
-            onClick={() => {
-              setIsFormOpen(false);
-              setEditingTimer(undefined);
-            }}
+        <Dialog
+          open={isFormOpen}
+          onOpenChange={(open) => {
+            setIsFormOpen(open);
+            if (!open) setEditingTimer(undefined);
+          }}
+        >
+          <DialogContent
+            showCloseButton={false}
+            aria-describedby={undefined}
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            className={`${sheetClassName} h-[85vh] sm:h-auto sm:max-w-md sm:rounded-xl`}
           >
-            <div
-              className="w-full h-[85vh] sm:h-auto sm:max-w-md bg-[#1C1C1E] rounded-t-[10px] sm:rounded-xl overflow-hidden shadow-2xl transform transition-all"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <TimerForm
-                devices={devices}
-                initialData={editingTimer}
-                onSave={handleSave}
-                onCancel={() => {
-                  setIsFormOpen(false);
-                  setEditingTimer(undefined);
-                }}
-              />
-            </div>
-          </div>
-        )}
+            <TimerForm
+              devices={devices}
+              initialData={editingTimer}
+              onSave={handleSave}
+              onCancel={() => {
+                setIsFormOpen(false);
+                setEditingTimer(undefined);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </main>
   );
