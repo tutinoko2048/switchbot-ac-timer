@@ -1,4 +1,3 @@
-import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { z } from 'zod';
@@ -7,11 +6,8 @@ import { db } from './db';
 import { timers, logs } from './db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { switchBotClient } from './lib/switchbot';
-import { startScheduler } from './scheduler';
 
 const app = new Hono();
-
-startScheduler();
 
 app.use('/*', cors());
 
@@ -92,7 +88,4 @@ const routes = app
 
 export type AppType = typeof routes;
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
-serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`Server listening on http://localhost:${info.port}`);
-});
+export default app;

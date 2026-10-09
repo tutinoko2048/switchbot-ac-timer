@@ -2,8 +2,8 @@
   "name": "backend",
   "type": "module",
   "scripts": {
-    "start": "nub src/index.ts",
-    "dev": "nub --watch src/index.ts",
+    "start": "nub src/main.ts",
+    "dev": "nub --watch src/main.ts",
     "studio": "drizzle-kit studio",
     "migrate": "nub src/db/migrate.ts"
   },

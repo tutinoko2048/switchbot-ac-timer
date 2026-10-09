@@ -1,4 +1,5 @@
 import { createHmac, randomUUID } from 'crypto';
+import { env } from '../env';
 
 export interface SwitchBotDevice {
   deviceId: string;
@@ -84,6 +85,6 @@ export class SwitchBotClient {
 }
 
 export const switchBotClient = new SwitchBotClient(
-  process.env.SWITCHBOT_TOKEN || '',
-  process.env.SWITCHBOT_SECRET || ''
+  env.SWITCHBOT_TOKEN,
+  env.SWITCHBOT_SECRET
 );
