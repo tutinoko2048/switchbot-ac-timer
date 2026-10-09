@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
-const rootDir = fileURLToPath(new URL('..', import.meta.url));
+const rootDir = fileURLToPath(new URL('../..', import.meta.url));
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),

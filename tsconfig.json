@@ -3,10 +3,11 @@
     "strict": true,
     "types": ["node"],
     "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
+    "noEmit": true,
     "module": "esnext",
     "target": "es2024",
-    "moduleResolution": "bundler"
-  }
+    "moduleResolution": "bundler",
+    "isolatedModules": true
+  },
+  "include": ["src/server", "drizzle.config.ts"]
 }

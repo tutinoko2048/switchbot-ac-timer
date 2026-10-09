@@ -1,1 +1,11 @@
-node_modules
+node_modules/
+
+.env
+.env.local
+
+sqlite.db
+*.tsbuildinfo
+
+# Next.js (移行が終わったら削除)
+.next/
+next-env.d.ts

@@ -1,4 +1,4 @@
 import { hc } from 'hono/client';
-import type { AppType } from '../../../backend/src/app';
+import type { AppType } from '../../../src/server/app';
 
 export const client = hc<AppType>('/');
