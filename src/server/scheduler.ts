@@ -56,8 +56,16 @@ async function executeTimer(timer: Timer) {
   }
 }
 
+// 最後にチェックを終えた時刻。ヘルスチェックでスケジューラーが止まっていないかを見るのに使う
+let lastTickAt: Date | null = null;
+
+export function getSchedulerLastTickAt() {
+  return lastTickAt;
+}
+
 export function startScheduler() {
   console.log('Scheduler started');
+  lastTickAt = new Date();
 
   let lastCheck = new Date();
   let running = false;
@@ -87,6 +95,7 @@ export function startScheduler() {
       console.error('Scheduler error:', e);
     } finally {
       lastCheck = now;
+      lastTickAt = new Date();
       running = false;
     }
   }, CHECK_INTERVAL_MS);

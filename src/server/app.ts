@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { db } from './db';
 import { timers, logs } from './db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 import { switchBotClient } from './lib/switchbot';
+import { getSchedulerLastTickAt } from './scheduler';
 
 const app = new Hono();
 
@@ -14,6 +15,35 @@ const timerSchema = z.object({
   weekdays: z.string(), // "0,1,2"
   deviceId: z.string(),
   isActive: z.boolean().default(true),
+});
+
+// スケジューラーのチェック間隔 (15秒) に対して、これ以上止まっていたら異常とみなす
+const SCHEDULER_STALE_MS = 60_000;
+
+// Uptime Kuma などの監視用。異常時は 503 を返す
+app.get('/api/health', (c) => {
+  let dbOk = true;
+  try {
+    db.get(sql`select 1`);
+  } catch (e) {
+    console.error('Health check: DB error:', e);
+    dbOk = false;
+  }
+
+  // 開発サーバーではスケジューラーを起動しないので null になる
+  const lastTickAt = getSchedulerLastTickAt();
+  const schedulerOk = !lastTickAt || Date.now() - lastTickAt.getTime() < SCHEDULER_STALE_MS;
+
+  const ok = dbOk && schedulerOk;
+  return c.json(
+    {
+      status: ok ? 'ok' : 'error',
+      db: dbOk ? 'ok' : 'error',
+      scheduler: { status: schedulerOk ? 'ok' : 'stale', lastTickAt },
+      uptime: Math.floor(process.uptime()),
+    },
+    ok ? 200 : 503,
+  );
 });
 
 const routes = app
