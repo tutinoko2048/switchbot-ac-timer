@@ -1,3 +1,4 @@
+import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { z } from 'zod';
@@ -91,7 +92,7 @@ const routes = app
 
 export type AppType = typeof routes;
 
-export default {
-  port: process.env.PORT ? parseInt(process.env.PORT) : 3001,
-  fetch: app.fetch,
-};
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
+serve({ fetch: app.fetch, port }, (info) => {
+  console.log(`Server listening on http://localhost:${info.port}`);
+});

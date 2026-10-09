@@ -197,21 +197,24 @@ importers:
 
   .:
     devDependencies:
-      '@types/bun':
-        specifier: ^1.3.7
-        version: 1.3.7
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
 
   backend:
     dependencies:
+      '@hono/node-server':
+        specifier: ^2.1.4
+        version: 2.1.4(hono@4.11.7)
       '@hono/zod-validator':
         specifier: ^0.7.6
         version: 0.7.6(hono@4.11.7)(zod@4.3.6)
+      better-sqlite3:
+        specifier: ^13.0.3
+        version: 13.0.3
       drizzle-orm:
         specifier: ^0.45.1
-        version: 0.45.1(better-sqlite3@13.0.3)(bun-types@1.3.7)
+        version: 0.45.1(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(bun-types@1.3.7)
       hono:
         specifier: 'catalog:'
         version: 4.11.7
@@ -219,9 +222,15 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
-      better-sqlite3:
-        specifier: ^13.0.3
-        version: 13.0.3
+      '@nubjs/nub':
+        specifier: ^0.9.6
+        version: 0.9.6
+      '@types/better-sqlite3':
+        specifier: ^9.6.0
+        version: 9.6.0
+      '@types/node':
+        specifier: ^26.6.4
+        version: 26.6.4
       drizzle-kit:
         specifier: ^0.31.8
         version: 0.31.8(supports-color@7.2.0)
@@ -685,6 +694,12 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@hono/node-server@2.1.4':
+    resolution: {integrity: sha512-2g1qeHl4BduwDn6L8nkAvDrPUWPMlkQ//a5NhP/zIyaXKMjZNRV+cG9Csu+BiJFf6+68pqzjf4Hi5sJGKHuS1g==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      hono: ^4 || ^5.0.0-0
+
   '@hono/zod-validator@0.7.6':
     resolution: {integrity: sha512-Io1B6d011Gj1KknV4rXYz4le5+5EubcWEU/speUjuw9XMMIaP3n78yXLhjd2A3PXaXaUwEAluOiAyLqhBEJgsw==}
     peerDependencies:
@@ -953,6 +968,55 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
+  '@nubjs/nub-darwin-arm64@0.9.6':
+    resolution: {integrity: sha512-+4jBMdMUOZi77lGzHgnZMofKVE+NoXP0EAxo4wlhfuMLvu3H9yW0Fk+78FXUJluWtoElyY6tuv9lKLDHHyMASA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@nubjs/nub-darwin-x64@0.9.6':
+    resolution: {integrity: sha512-5ZL7xRfRwHz14P+V5gXCVL9KRAEGk6UH9C72WsrzyGzYnJpT1r4cM7VRhTHHkYgUMorZUJQ0dFk9qZ07MozPCg==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@nubjs/nub-linux-arm64-musl@0.9.6':
+    resolution: {integrity: sha512-uwuNjVjEaDf6tJb0My0K7/aeqzzGvDoIixitfPa77PzFz4rh8eKy7fb8IzrIeC/DcbPZIsaIELzPFGr99Ujf9A==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@nubjs/nub-linux-arm64@0.9.6':
+    resolution: {integrity: sha512-oaHfcn4IKG1vmUeSwUOmdYRz9k+6fem3IS/ZgjkQatsozo6OLs630ag+sVdn3L9+SLbqCQkm6G/GATQ7nR5cDg==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@nubjs/nub-linux-x64-musl@0.9.6':
+    resolution: {integrity: sha512-fXIyH+SvQ4OH/Yac/jKjzO0rNx3lAClVWoGS250La3NKDdzN3O7JkSClr/RqEGJRhZ+iW+/7T2UITR6iQWJo0g==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@nubjs/nub-linux-x64@0.9.6':
+    resolution: {integrity: sha512-mLdGFqoO+EZSZWXLrZ2jrt/YNBfTcRFzfFX3BXne1Ky+xXFlic/LOv/zGqZDNwSJQbQydvY5bjVFOut3zUxGIg==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@nubjs/nub-win32-arm64@0.9.6':
+    resolution: {integrity: sha512-D6nL4YsiXpwG7xDZGof4zY2CKHIj+cak3JbsfFebYMdk9uFpPi0eeJ7J+U0+hDJQCVpt+Z5SFRFU8I64MKIiYw==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@nubjs/nub-win32-x64@0.9.6':
+    resolution: {integrity: sha512-wN2HoGZDTSVSoW9Q73wFIy3ybBgdStZyFR/vDgUgixZo8BnC3uwbpFVhZSrm39oIouiWpUEwDsMOXpTxqqbAuw==}
+    cpu: [x64]
+    os: [win32]
+
+  '@nubjs/nub@0.9.6':
+    resolution: {integrity: sha512-02KozYQNgOa/UMmT8AEcoAM5/vR8XDAS5m/deWstTg+oxmML01N2e7ahmvBiXY83a9HXa8LEiYhAbi4DqUJ3Ew==}
+    engines: {node: '>=18.19.0'}
+    hasBin: true
+
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
@@ -1054,8 +1118,8 @@ packages:
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
-  '@types/bun@1.3.7':
-    resolution: {integrity: sha512-lmNuMda+Z9b7tmhA0tohwy8ZWFSnmQm1UDWXtH5r9F7wZCfkeO3Jx7wKQ1EOiKq43yHts7ky6r8SDJQWRNupkA==}
+  '@types/better-sqlite3@9.6.0':
+    resolution: {integrity: sha512-ZEEwBSgMu7GYJOynoagg5X9JbxfL6dTJDsgViJIqh67jV44kyOr9RXfmFjLK5rzC4MWssP06t9hu/JwGDnUbCg==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -1068,6 +1132,9 @@ packages:
 
   '@types/node@25.1.0':
     resolution: {integrity: sha512-t7frlewr6+cbx+9Ohpl0NOTKXZNV9xHRmNOvql47BFJKcEG1CxtxlPEEe+gR9uhVWM4DwhnvTF110mIL4yP9RA==}
+
+  '@types/node@26.6.4':
+    resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -2567,6 +2634,9 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
+
   unrs-resolver@1.11.1:
     resolution: {integrity: sha512-bSjt9pjaEBnNiGgc9rUiHGKv5l4/TGzDmYw3RhnkJGtLhbnnA/5qJj7x3dNDCRx/PJxu774LlH8lCOlB4hEfKg==}
 
@@ -2942,6 +3012,10 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
+  '@hono/node-server@2.1.4(hono@4.11.7)':
+    dependencies:
+      hono: 4.11.7
+
   '@hono/zod-validator@0.7.6(hono@4.11.7)(zod@4.3.6)':
     dependencies:
       hono: 4.11.7
@@ -3125,6 +3199,41 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
+  '@nubjs/nub-darwin-arm64@0.9.6':
+    optional: true
+
+  '@nubjs/nub-darwin-x64@0.9.6':
+    optional: true
+
+  '@nubjs/nub-linux-arm64-musl@0.9.6':
+    optional: true
+
+  '@nubjs/nub-linux-arm64@0.9.6':
+    optional: true
+
+  '@nubjs/nub-linux-x64-musl@0.9.6':
+    optional: true
+
+  '@nubjs/nub-linux-x64@0.9.6':
+    optional: true
+
+  '@nubjs/nub-win32-arm64@0.9.6':
+    optional: true
+
+  '@nubjs/nub-win32-x64@0.9.6':
+    optional: true
+
+  '@nubjs/nub@0.9.6':
+    optionalDependencies:
+      '@nubjs/nub-darwin-arm64': 0.9.6
+      '@nubjs/nub-darwin-x64': 0.9.6
+      '@nubjs/nub-linux-arm64': 0.9.6
+      '@nubjs/nub-linux-arm64-musl': 0.9.6
+      '@nubjs/nub-linux-x64': 0.9.6
+      '@nubjs/nub-linux-x64-musl': 0.9.6
+      '@nubjs/nub-win32-arm64': 0.9.6
+      '@nubjs/nub-win32-x64': 0.9.6
+
   '@rtsao/scc@1.1.0': {}
 
   '@swc/helpers@0.5.15':
@@ -3205,9 +3314,9 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@types/bun@1.3.7':
+  '@types/better-sqlite3@9.6.0':
     dependencies:
-      bun-types: 1.3.7
+      '@types/node': 25.1.0
 
   '@types/estree@1.0.8': {}
 
@@ -3218,6 +3327,10 @@ snapshots:
   '@types/node@25.1.0':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/node@26.6.4':
+    dependencies:
+      undici-types: 8.9.0
 
   '@types/react-dom@19.2.3(@types/react@19.2.10)':
     dependencies:
@@ -3517,6 +3630,7 @@ snapshots:
   bun-types@1.3.7:
     dependencies:
       '@types/node': 25.1.0
+    optional: true
 
   call-bind-apply-helpers@1.0.2:
     dependencies:
@@ -3625,8 +3739,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.45.1(better-sqlite3@13.0.3)(bun-types@1.3.7):
+  drizzle-orm@0.45.1(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(bun-types@1.3.7):
     optionalDependencies:
+      '@types/better-sqlite3': 9.6.0
       better-sqlite3: 13.0.3
       bun-types: 1.3.7
 
@@ -4905,6 +5020,8 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   undici-types@7.16.0: {}
+
+  undici-types@8.9.0: {}
 
   unrs-resolver@1.11.1:
     dependencies:

@@ -1,19 +1,24 @@
 {
   "name": "backend",
+  "type": "module",
   "scripts": {
-    "start": "bun run src/index.ts",
-    "dev": "bun run --hot src/index.ts",
+    "start": "nub src/index.ts",
+    "dev": "nub --watch src/index.ts",
     "studio": "drizzle-kit studio",
-    "migrate": "bun src/db/migrate.ts"
+    "migrate": "nub src/db/migrate.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^2.1.4",
     "@hono/zod-validator": "^0.7.6",
+    "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.1",
     "hono": "catalog:",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "better-sqlite3": "^13.0.3",
+    "@nubjs/nub": "^0.9.6",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.4",
     "drizzle-kit": "^0.31.8"
   }
 }

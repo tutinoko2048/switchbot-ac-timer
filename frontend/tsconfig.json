@@ -11,7 +11,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node", "bun"],
+    "types": ["node"],
     "noUncheckedSideEffectImports": false,
     "jsx": "react-jsx",
     "incremental": true,
