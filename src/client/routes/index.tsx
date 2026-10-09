@@ -56,7 +56,10 @@ function Home() {
       <div className="max-w-5xl mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <header className="flex justify-between items-center px-4 pb-3 pt-[max(env(safe-area-inset-top),1rem)] sticky top-0 bg-black/90 backdrop-blur-md z-10 border-b border-gray-900 sm:border-none">
-          <button onClick={() => setIsEditing(!isEditing)} className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-lg z-10 p-2 -m-2">
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-lg z-10 p-2 -m-2"
+          >
             {isEditing ? '完了' : '編集'}
           </button>
           <h1 className="text-lg font-semibold absolute left-1/2 -translate-x-1/2">アラーム</h1>
@@ -75,12 +78,7 @@ function Home() {
             {timersResult.isPending ? (
               <div className="flex justify-center items-center h-64 text-gray-500">読み込み中...</div>
             ) : (
-              <TimerList
-                timers={timers}
-                devices={devices}
-                isEditing={isEditing}
-                onEdit={handleEditTimer}
-              />
+              <TimerList timers={timers} devices={devices} isEditing={isEditing} onEdit={handleEditTimer} />
             )}
           </div>
 
@@ -102,7 +100,14 @@ function Home() {
           onClick={() => setIsLogModalOpen(true)}
           className="md:hidden fixed bottom-6 left-6 w-14 h-14 bg-gray-700 rounded-full flex items-center justify-center shadow-lg border border-gray-500 z-20 text-white"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-file-text-fill" viewBox="0 0 16 16">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            className="bi bi-file-text-fill"
+            viewBox="0 0 16 16"
+          >
             <path d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2M5 4h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1m-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1m0 2h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1" />
           </svg>
         </button>
@@ -119,7 +124,9 @@ function Home() {
             >
               <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-[#2C2C2E]">
                 <h2 className="text-lg font-bold">実行ログ</h2>
-                <button onClick={() => setIsLogModalOpen(false)} className="text-gray-400 p-2">✕</button>
+                <button onClick={() => setIsLogModalOpen(false)} className="text-gray-400 p-2">
+                  ✕
+                </button>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
                 <LogList logs={logs} devices={devices} timers={timers} />

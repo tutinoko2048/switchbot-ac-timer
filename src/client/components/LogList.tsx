@@ -33,7 +33,7 @@ export function LogList({ logs, devices, timers }: LogListProps) {
         const timer = timers.find((t) => t.id === log.timerId);
         const device = timer ? devices.find((d) => d.deviceId === timer.deviceId) : null;
         const timerName = timer ? timer.name : '削除されたタイマー';
-        const deviceName = device ? device.deviceName : (timer ? '不明なデバイス' : '');
+        const deviceName = device ? device.deviceName : timer ? '不明なデバイス' : '';
 
         return (
           <div
@@ -52,11 +52,11 @@ export function LogList({ logs, devices, timers }: LogListProps) {
                 {log.status === 'success' ? '成功' : '失敗'}
               </span>
             </div>
-            <div className="font-medium text-sm">{timerName} - {deviceName}</div>
+            <div className="font-medium text-sm">
+              {timerName} - {deviceName}
+            </div>
             <div className="flex justify-between items-center mt-1">
-              <span className="text-xs text-gray-400">
-                {log.triggerType === 'schedule' ? 'スケジュール' : '手動'}
-              </span>
+              <span className="text-xs text-gray-400">{log.triggerType === 'schedule' ? 'スケジュール' : '手動'}</span>
               {log.errorMessage && <span className="text-xs text-red-400">{log.errorMessage}</span>}
             </div>
           </div>

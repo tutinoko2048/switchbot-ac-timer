@@ -25,15 +25,15 @@
 
 ## 技術スタック
 
-| 項目 | 採用 |
-|---|---|
-| フロント | React + TanStack Router（ファイルベース）+ TanStack Query |
+| 項目                | 採用                                                               |
+| ------------------- | ------------------------------------------------------------------ |
+| フロント            | React + TanStack Router（ファイルベース）+ TanStack Query          |
 | ビルド / lint / fmt | Vite+（`vp dev` / `vp build` / `vp lint` / `vp fmt` / `vp check`） |
-| API | Hono（RPC で型を共有） |
-| サーバーの実行環境 | Node + Nub（TypeScript を直接実行） |
-| DB | Drizzle + better-sqlite3 |
-| スケジューラー | 同じプロセス内で動かす（本番の入口からだけ起動） |
-| プロセス管理 | pm2（1プロセス） |
+| API                 | Hono（RPC で型を共有）                                             |
+| サーバーの実行環境  | Node + Nub（TypeScript を直接実行）                                |
+| DB                  | Drizzle + better-sqlite3                                           |
+| スケジューラー      | 同じプロセス内で動かす（本番の入口からだけ起動）                   |
+| プロセス管理        | pm2（1プロセス）                                                   |
 
 ## 手順（コミット単位。どの段階でも動く状態を保つ）
 
@@ -74,14 +74,14 @@
 - `frontend/src` の中身を `src/client` に移し、`'use client'` を消す。`page.tsx` は `routes/index.tsx` にする
 - Next 固有の機能を置き換える
 
-  | Next | 置き換え先 |
-  |---|---|
-  | `metadata` / `viewport` | `index.html` の `<meta>` / `<link>` |
-  | `app/manifest.ts` | `public/manifest.webmanifest`（`sw.js` がこの名前でキャッシュしているので名前は変えない） |
-  | `next/script` での SW 登録 | `main.tsx` |
-  | `next/font/google` | `@fontsource-variable/noto-sans-jp` |
-  | `rewrites`（`/api` のプロキシ） | 開発: `@hono/vite-dev-server`、本番: 同じプロセス |
-  | `reactCompiler: true` | `@vitejs/plugin-react` の babel 設定 |
+  | Next                            | 置き換え先                                                                                |
+  | ------------------------------- | ----------------------------------------------------------------------------------------- |
+  | `metadata` / `viewport`         | `index.html` の `<meta>` / `<link>`                                                       |
+  | `app/manifest.ts`               | `public/manifest.webmanifest`（`sw.js` がこの名前でキャッシュしているので名前は変えない） |
+  | `next/script` での SW 登録      | `main.tsx`                                                                                |
+  | `next/font/google`              | `@fontsource-variable/noto-sans-jp`                                                       |
+  | `rewrites`（`/api` のプロキシ） | 開発: `@hono/vite-dev-server`、本番: 同じプロセス                                         |
+  | `reactCompiler: true`           | `@vitejs/plugin-react` の babel 設定                                                      |
 
 - `main.ts` で `dist` を配信する。登録順は `/api` → 静的ファイル → それ以外は `index.html`（SPA のフォールバック）
 - 該当するルートがない `/api/*` には JSON の404を返す（`index.html` が返らないようにする）

@@ -19,7 +19,9 @@ export const logs = sqliteTable('logs', {
   status: text('status', { enum: ['success', 'failure'] }).notNull(),
   errorMessage: text('error_message'),
   triggerType: text('trigger_type', { enum: ['schedule', 'manual'] }).notNull(),
-  timerId: integer('timer_id').references(() => timers.id).notNull(),
+  timerId: integer('timer_id')
+    .references(() => timers.id)
+    .notNull(),
 });
 
 export type Timer = typeof timers.$inferSelect;

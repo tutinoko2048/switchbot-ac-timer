@@ -56,8 +56,7 @@ export function useSaveTimer() {
 export function useDeleteTimer() {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: (id: number) =>
-      parseResponse(client.api.timers[':id'].$delete({ param: { id: id.toString() } })),
+    mutationFn: (id: number) => parseResponse(client.api.timers[':id'].$delete({ param: { id: id.toString() } })),
     onSuccess: invalidate,
   });
 }
@@ -65,8 +64,7 @@ export function useDeleteTimer() {
 export function useTestTimer() {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: (id: number) =>
-      parseResponse(client.api.timers[':id'].test.$post({ param: { id: id.toString() } })),
+    mutationFn: (id: number) => parseResponse(client.api.timers[':id'].test.$post({ param: { id: id.toString() } })),
     onSettled: invalidate,
   });
 }

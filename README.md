@@ -13,12 +13,14 @@ SwitchBotデバイス（主にエアコン）をスケジュール制御する�
 ## 🛠 Tech Stack
 
 ### Frontend
+
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **HTTP Client**: Hono Client (RPC)
 
 ### Backend
+
 - **Runtime**: [Bun](https://bun.sh/)
 - **Framework**: [Hono](https://hono.dev/)
 - **Database**: SQLite
@@ -46,25 +48,28 @@ This project is a monorepo managed by `pnpm`.
 ### Installation
 
 1.  **Install Dependencies**
+
     ```bash
     pnpm install
     ```
 
 2.  **Backend Setup**
-    
+
     Create `.env` file in `backend/` directory based on `.env.example`.
-    
+
     ```bash
     cp backend/.env.example backend/.env
     ```
-    
+
     Edit `backend/.env` and set your SwitchBot credentials:
+
     ```env
     SWITCHBOT_TOKEN=your_token_here
     SWITCHBOT_SECRET=your_secret_here
     ```
 
     Initialize the SQLite database:
+
     ```bash
     cd backend
     pnpm run migrate
@@ -75,17 +80,21 @@ This project is a monorepo managed by `pnpm`.
     You need to run both backend and frontend terminals.
 
     **Backend** (Terminal 1):
+
     ```bash
     cd backend
     pnpm dev
     ```
+
     Server runs on: http://localhost:3001
 
     **Frontend** (Terminal 2):
+
     ```bash
     cd frontend
     pnpm dev
     ```
+
     App runs on: http://localhost:3000
 
 ## 🚢 Production

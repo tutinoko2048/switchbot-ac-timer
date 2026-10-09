@@ -16,9 +16,7 @@ export function TimerForm({
 }) {
   const [name, setName] = useState(initialData?.name || '');
   const [time, setTime] = useState(initialData?.time || '08:00');
-  const [weekdays] = useState<string[]>(
-    initialData?.weekdays ? initialData.weekdays.split(',') : []
-  ); // 月-金
+  const [weekdays] = useState<string[]>(initialData?.weekdays ? initialData.weekdays.split(',') : []); // 月-金
   const [deviceId, setDeviceId] = useState(initialData?.deviceId || '');
   const [isActive, setIsActive] = useState(initialData ? initialData.isActive : true);
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
@@ -96,13 +94,19 @@ export function TimerForm({
     <div className="flex flex-col h-full bg-[#1C1C1E] text-white sm:rounded-xl sm:h-auto sm:max-w-md sm:w-full">
       {/* Header */}
       <div className="relative flex justify-between items-center px-4 py-4 bg-[#1C1C1E] sm:bg-transparent shrink-0">
-        <button onClick={onCancel} className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-base z-10 p-2 -m-2">
+        <button
+          onClick={onCancel}
+          className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors text-base z-10 p-2 -m-2"
+        >
           キャンセル
         </button>
         <h2 className="font-bold text-base absolute left-1/2 -translate-x-1/2">
           {initialData ? 'アラームを編集' : 'アラームを追加'}
         </h2>
-        <button onClick={handleSubmit} className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors font-bold text-base z-10 p-2 -m-2">
+        <button
+          onClick={handleSubmit}
+          className="text-[#FF9F0A] hover:text-[#FFB340] transition-colors font-bold text-base z-10 p-2 -m-2"
+        >
           保存
         </button>
       </div>

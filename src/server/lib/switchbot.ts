@@ -41,15 +41,13 @@ export class SwitchBotClient {
     const t = Date.now().toString();
     const nonce = randomUUID();
     const data = this.token + t + nonce;
-    const sign = createHmac('sha256', this.secret)
-      .update(data)
-      .digest('base64');
+    const sign = createHmac('sha256', this.secret).update(data).digest('base64');
 
     return {
-      'Authorization': this.token,
-      'sign': sign,
-      'nonce': nonce,
-      't': t,
+      Authorization: this.token,
+      sign: sign,
+      nonce: nonce,
+      t: t,
       'Content-Type': 'application/json; charset=utf8',
     };
   }
@@ -59,14 +57,18 @@ export class SwitchBotClient {
       headers: this.getHeaders(),
     });
     if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`SwitchBot API Error: ${response.status} ${text}`);
+      const text = await response.text();
+      throw new Error(`SwitchBot API Error: ${response.status} ${text}`);
     }
     return response.json() as Promise<SwitchBotResponse<GetDevicesBody>>;
   }
 
-
-  async sendDeviceControl(deviceId: string, command: string, parameter: string = 'default', commandType: string = 'command') {
+  async sendDeviceControl(
+    deviceId: string,
+    command: string,
+    parameter: string = 'default',
+    commandType: string = 'command',
+  ) {
     const response = await fetch(`${this.baseUrl}/devices/${deviceId}/commands`, {
       method: 'POST',
       headers: this.getHeaders(),
@@ -77,14 +79,11 @@ export class SwitchBotClient {
       }),
     });
     if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`SwitchBot API Error: ${response.status} ${text}`);
+      const text = await response.text();
+      throw new Error(`SwitchBot API Error: ${response.status} ${text}`);
     }
     return response.json();
   }
 }
 
-export const switchBotClient = new SwitchBotClient(
-  env.SWITCHBOT_TOKEN,
-  env.SWITCHBOT_SECRET
-);
+export const switchBotClient = new SwitchBotClient(env.SWITCHBOT_TOKEN, env.SWITCHBOT_SECRET);

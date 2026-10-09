@@ -82,9 +82,7 @@ export function TimerList({
               >
                 <div className="w-6 h-6 rounded-full bg-[#FF4245] flex items-center justify-center">
                   <div
-                    className={`w-3 h-0.5 bg-white transition-transform duration-300 ${
-                      isDeleting ? 'rotate-90' : ''
-                    }`}
+                    className={`w-3 h-0.5 bg-white transition-transform duration-300 ${isDeleting ? 'rotate-90' : ''}`}
                   />
                 </div>
               </button>
@@ -96,13 +94,13 @@ export function TimerList({
                 <div className="flex items-baseline gap-4">
                   {/* Desktop */}
                   <span
-                    className={`text-5xl font-light tracking-tight ${
-                      timer.isActive ? 'text-white' : 'text-gray-500'
-                    }`}
+                    className={`text-5xl font-light tracking-tight ${timer.isActive ? 'text-white' : 'text-gray-500'}`}
                   >
                     {timer.time}
                   </span>
-                  <span className={`text-md hidden sm:inline-block truncate ${timer.isActive ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <span
+                    className={`text-md hidden sm:inline-block truncate ${timer.isActive ? 'text-gray-400' : 'text-gray-500'}`}
+                  >
                     {timer.name} - {deviceName}
                   </span>
                 </div>
