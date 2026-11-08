@@ -60,7 +60,7 @@ const routes = app
     return c.json(allTimers);
   })
   .get('/api/logs', async (c) => {
-    const allLogs = db.select().from(logs).orderBy(desc(logs.executedAt)).limit(10).all();
+    const allLogs = db.select().from(logs).orderBy(desc(logs.executedAt)).limit(15).all();
     return c.json(allLogs);
   })
   .post('/api/timers', zValidator('json', timerSchema), async (c) => {
