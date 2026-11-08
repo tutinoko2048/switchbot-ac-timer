@@ -31,7 +31,7 @@ export const devicesQuery = queryOptions({
   staleTime: Infinity,
 });
 
-export type TimerInput = Pick<Timer, 'name' | 'time' | 'weekdays' | 'deviceId' | 'isActive'>;
+export type TimerInput = Pick<Timer, 'name' | 'time' | 'weekdays' | 'deviceIds' | 'isActive'>;
 
 function useInvalidate() {
   const queryClient = useQueryClient();

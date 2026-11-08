@@ -6,7 +6,7 @@ export const timers = sqliteTable('timers', {
   name: text('name').notNull().default('My Timer'),
   time: text('time').notNull(), // Format: "HH:MM"
   weekdays: text('weekdays').notNull(), // Format: "0,1,2,3,4,5,6" (0=Sun)
-  deviceId: text('device_id').notNull(),
+  deviceIds: text('device_ids', { mode: 'json' }).$type<string[]>().notNull(), // 例: ["01-xxx", "02-yyy"]
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
@@ -19,6 +19,8 @@ export const logs = sqliteTable('logs', {
   status: text('status', { enum: ['success', 'failure'] }).notNull(),
   errorMessage: text('error_message'),
   triggerType: text('trigger_type', { enum: ['schedule', 'manual'] }).notNull(),
+  // 複数デバイス対応前のログは null (その場合はタイマーのデバイスを表示する)
+  deviceId: text('device_id'),
   timerId: integer('timer_id')
     .references(() => timers.id)
     .notNull(),

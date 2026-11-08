@@ -1,4 +1,5 @@
 import { Log, SwitchBotInfraredRemote, Timer } from '@/types';
+import { formatDeviceNames } from '@/lib/devices';
 
 interface LogListProps {
   logs: Log[];
@@ -31,9 +32,13 @@ export function LogList({ logs, devices, timers }: LogListProps) {
     <div className="space-y-2">
       {logs.map((log) => {
         const timer = timers.find((t) => t.id === log.timerId);
-        const device = timer ? devices.find((d) => d.deviceId === timer.deviceId) : null;
         const timerName = timer ? timer.name : '削除されたタイマー';
-        const deviceName = device ? device.deviceName : timer ? '不明なデバイス' : '';
+        // 複数デバイス対応前のログは deviceId を持たないので、タイマーのデバイスを表示する
+        const deviceName = log.deviceId
+          ? formatDeviceNames([log.deviceId], devices) || '不明なデバイス'
+          : timer
+            ? formatDeviceNames(timer.deviceIds, devices) || '不明なデバイス'
+            : '';
 
         return (
           <div

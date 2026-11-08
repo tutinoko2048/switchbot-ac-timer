@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDeleteTimer, useSaveTimer } from '@/lib/queries';
+import { formatDeviceNames } from '@/lib/devices';
 import type { SwitchBotInfraredRemote, Timer } from '@/types';
 import { toast } from 'sonner';
 import { DialogTitle } from '@/components/ui/dialog';
@@ -30,15 +31,24 @@ export function TimerForm({
   const [name, setName] = useState(initialData?.name || '');
   const [time, setTime] = useState(initialData?.time || '08:00');
   const [weekdays] = useState<string[]>(initialData?.weekdays ? initialData.weekdays.split(',') : []); // 月-金
-  const [deviceId, setDeviceId] = useState(initialData?.deviceId || '');
+  const [deviceIds, setDeviceIds] = useState<string[]>(initialData?.deviceIds ?? []);
   const [isActive, setIsActive] = useState(initialData ? initialData.isActive : true);
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
   const saveTimer = useSaveTimer();
   const deleteTimer = useDeleteTimer();
 
+  // 選択済みなら外し、未選択なら追加する。並び順はデバイス一覧の順にそろえる
+  const toggleDevice = (id: string) => {
+    setDeviceIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : devices.map((d) => d.deviceId).filter((x) => x === id || prev.includes(x)),
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!deviceId) {
+    if (deviceIds.length === 0) {
       toast.error('デバイスを選択してください');
       return;
     }
@@ -47,7 +57,7 @@ export function TimerForm({
       name: name || 'アラーム',
       time,
       weekdays: weekdays.join(','),
-      deviceId,
+      deviceIds,
       isActive,
     };
 
@@ -86,14 +96,11 @@ export function TimerForm({
             {devices.map((d) => (
               <button
                 key={d.deviceId}
-                onClick={() => {
-                  setDeviceId(d.deviceId);
-                  setIsSelectingDevice(false);
-                }}
+                onClick={() => toggleDevice(d.deviceId)}
                 className="w-full flex justify-between items-center p-4 bg-[#2C2C2E] active:bg-[#3A3A3C] border-b border-[#38383A] last:border-none"
               >
                 <span className="text-base">{d.deviceName}</span>
-                {d.deviceId === deviceId && <span className="text-[#FF9F0A] font-bold">✓</span>}
+                {deviceIds.includes(d.deviceId) && <span className="text-[#FF9F0A] font-bold">✓</span>}
               </button>
             ))}
           </div>
@@ -159,7 +166,7 @@ export function TimerForm({
               <span className="text-base whitespace-nowrap shrink-0">デバイス</span>
               <div className="flex items-center gap-2 flex-1 justify-end min-w-0 ml-4">
                 <span className="text-[#99999e] text-base truncate">
-                  {devices.find((d) => d.deviceId === deviceId)?.deviceName || '選択してください'}
+                  {formatDeviceNames(deviceIds, devices) || '選択してください'}
                 </span>
                 <span className="text-[#6b6b70] text-xl font-extrabold shrink-0">›</span>
               </div>
