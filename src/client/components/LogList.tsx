@@ -1,4 +1,5 @@
 import { Log, SwitchBotInfraredRemote, Timer } from '@/types';
+import { formatDeviceNames } from '@/lib/devices';
 
 interface LogListProps {
   logs: Log[];
@@ -14,7 +15,6 @@ export function LogList({ logs, devices, timers }: LogListProps) {
     const isoString = dateStr.replace(' ', 'T') + (dateStr.endsWith('Z') ? '' : 'Z');
     return new Date(isoString).toLocaleString('ja-JP', {
       timeZone: 'Asia/Tokyo',
-      year: 'numeric',
       month: 'numeric',
       day: 'numeric',
       hour: '2-digit',
@@ -28,37 +28,46 @@ export function LogList({ logs, devices, timers }: LogListProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {logs.map((log) => {
         const timer = timers.find((t) => t.id === log.timerId);
-        const device = timer ? devices.find((d) => d.deviceId === timer.deviceId) : null;
         const timerName = timer ? timer.name : '削除されたタイマー';
-        const deviceName = device ? device.deviceName : timer ? '不明なデバイス' : '';
+        // 複数デバイス対応前のログは deviceId を持たないので、タイマーのデバイスを表示する
+        const deviceName = log.deviceId
+          ? formatDeviceNames([log.deviceId], devices) || '不明なデバイス'
+          : timer
+            ? formatDeviceNames(timer.deviceIds, devices) || '不明なデバイス'
+            : '';
+
+        const isSuccess = log.status === 'success';
 
         return (
           <div
             key={log.id}
-            className={`p-3 rounded-lg border ${
-              log.status === 'success' ? 'border-green-900/50 bg-green-900/10' : 'border-red-900/50 bg-red-900/10'
+            className={`px-3 py-2 rounded-lg border ${
+              isSuccess ? 'border-green-900/50 bg-green-900/10' : 'border-red-900/50 bg-red-900/10'
             }`}
           >
-            <div className="flex justify-between items-start">
-              <span className="text-xs text-gray-500">{formatDate(log.executedAt)}</span>
+            <div className="flex items-center gap-2 min-w-0">
               <span
-                className={`text-xs px-1.5 py-0.5 rounded ${
-                  log.status === 'success' ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'
+                className={`shrink-0 text-[11px] leading-none px-1.5 py-1 rounded ${
+                  isSuccess ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'
                 }`}
               >
-                {log.status === 'success' ? '成功' : '失敗'}
+                {isSuccess ? '成功' : '失敗'}
+              </span>
+              <span className="flex-1 min-w-0 truncate text-sm font-medium">
+                {timerName}
+                {deviceName && ` - ${deviceName}`}
               </span>
             </div>
-            <div className="font-medium text-sm">
-              {timerName} - {deviceName}
+            <div className="flex justify-between items-center gap-2 mt-1 text-xs text-gray-500">
+              <span>{formatDate(log.executedAt)}</span>
+              <span className="shrink-0">{log.triggerType === 'schedule' ? 'スケジュール' : '手動'}</span>
             </div>
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-xs text-gray-400">{log.triggerType === 'schedule' ? 'スケジュール' : '手動'}</span>
-              {log.errorMessage && <span className="text-xs text-red-400">{log.errorMessage}</span>}
-            </div>
+            {log.errorMessage && (
+              <div className="mt-1 text-xs text-red-400 break-all line-clamp-2">{log.errorMessage}</div>
+            )}
           </div>
         );
       })}

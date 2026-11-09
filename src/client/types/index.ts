@@ -3,7 +3,7 @@ export interface Timer {
   name: string;
   time: string;
   weekdays: string;
-  deviceId: string;
+  deviceIds: string[];
   isActive: boolean;
   createdAt: string | null;
   updatedAt: string | null;
@@ -42,5 +42,6 @@ export interface Log {
   status: 'success' | 'failure';
   errorMessage: string | null;
   triggerType: 'schedule' | 'manual';
+  deviceId: string | null;
   timerId: number;
 }

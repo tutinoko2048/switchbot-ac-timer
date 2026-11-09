@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDeleteTimer, useSaveTimer, useTestTimer } from '@/lib/queries';
+import { formatDeviceNames } from '@/lib/devices';
 import type { Timer, SwitchBotInfraredRemote } from '@/types';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -41,7 +42,7 @@ export function TimerList({
         name: timer.name,
         time: timer.time,
         weekdays: timer.weekdays,
-        deviceId: timer.deviceId,
+        deviceIds: timer.deviceIds,
         isActive: !timer.isActive,
       },
     });
@@ -59,7 +60,7 @@ export function TimerList({
   return (
     <div className="space-y-px bg-gray-900 rounded-lg overflow-hidden">
       {timers.map((timer) => {
-        const deviceName = devices.find((d) => d.deviceId === timer.deviceId)?.deviceName || '不明なデバイス';
+        const deviceName = formatDeviceNames(timer.deviceIds, devices) || '不明なデバイス';
         const isDeleting = deletingId === timer.id;
 
         return (

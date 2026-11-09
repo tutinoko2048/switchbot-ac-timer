@@ -5,7 +5,7 @@ import { db } from './db';
 import { timers, logs } from './db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
 import { switchBotClient } from './lib/switchbot';
-import { getSchedulerLastTickAt } from './scheduler';
+import { getSchedulerLastTickAt, sendTimerCommands } from './scheduler';
 
 const app = new Hono();
 
@@ -13,7 +13,7 @@ const timerSchema = z.object({
   name: z.string().default('My Timer'),
   time: z.string().regex(/^\d{2}:\d{2}$/),
   weekdays: z.string(), // "0,1,2"
-  deviceId: z.string(),
+  deviceIds: z.array(z.string()).min(1),
   isActive: z.boolean().default(true),
 });
 
@@ -60,7 +60,7 @@ const routes = app
     return c.json(allTimers);
   })
   .get('/api/logs', async (c) => {
-    const allLogs = db.select().from(logs).orderBy(desc(logs.executedAt)).limit(10).all();
+    const allLogs = db.select().from(logs).orderBy(desc(logs.executedAt)).limit(15).all();
     return c.json(allLogs);
   })
   .post('/api/timers', zValidator('json', timerSchema), async (c) => {
@@ -90,27 +90,12 @@ const routes = app
       return c.json({ error: 'Timer not found' }, 404);
     }
 
-    // Turn on AC, default settings
-    try {
-      const result = await switchBotClient.sendDeviceControl(timer.deviceId, 'turnOn');
-      await db.insert(logs).values({
-        command: 'turnOn',
-        status: 'success',
-        triggerType: 'manual',
-        timerId: timer.id,
-      });
-
-      return c.json(result);
-    } catch (e: any) {
-      await db.insert(logs).values({
-        command: 'turnOn',
-        status: 'failure',
-        errorMessage: e.message,
-        triggerType: 'manual',
-        timerId: timer.id,
-      });
-      return c.json({ error: e.message }, 500);
+    const { successCount, failures } = await sendTimerCommands(timer, 'manual');
+    if (failures.length > 0) {
+      const error = failures.map((f) => `${f.deviceId}: ${f.message}`).join('\n');
+      return c.json({ error, successCount, failureCount: failures.length }, 500);
     }
+    return c.json({ successCount });
   });
 
 // 該当するルートがない /api/* は、SPA の index.html ではなく JSON の404を返す

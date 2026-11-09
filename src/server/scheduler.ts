@@ -27,32 +27,42 @@ export function minutesBetween(from: Date, to: Date): Set<string> {
   return result;
 }
 
+/**
+ * タイマーの全デバイスに turnOn を送り、デバイスごとにログを残す。
+ * 1台が失敗しても残りのデバイスには送り続ける。
+ */
+export async function sendTimerCommands(timer: Timer, triggerType: 'schedule' | 'manual') {
+  const failures: { deviceId: string; message: string }[] = [];
+  for (const deviceId of timer.deviceIds) {
+    try {
+      // 'turnOn' は通常、前回の設定を復元して電源を入れる
+      await switchBotClient.sendDeviceControl(deviceId, 'turnOn');
+      await db.insert(logs).values({ command: 'turnOn', status: 'success', triggerType, timerId: timer.id, deviceId });
+    } catch (e: any) {
+      console.error(`Failed to send turnOn to ${deviceId} (timer ${timer.id}):`, e);
+      failures.push({ deviceId, message: e.message });
+      await db.insert(logs).values({
+        command: 'turnOn',
+        status: 'failure',
+        errorMessage: e.message,
+        triggerType,
+        timerId: timer.id,
+        deviceId,
+      });
+    }
+  }
+  return { successCount: timer.deviceIds.length - failures.length, failures };
+}
+
 async function executeTimer(timer: Timer) {
-  console.log(`Executing timer: ${timer.name} for device ${timer.deviceId}`);
-  try {
-    // Basic turnOn. For AC, you might want to set specific settings.
-    // 'turnOn' usually restores last state.
-    await switchBotClient.sendDeviceControl(timer.deviceId, 'turnOn');
-    console.log(`Timer ${timer.id} executed successfully.`);
+  console.log(`Executing timer: ${timer.name} for devices ${timer.deviceIds.join(', ')}`);
+  const { successCount, failures } = await sendTimerCommands(timer, 'schedule');
+  console.log(`Timer ${timer.id} executed: ${successCount} succeeded, ${failures.length} failed.`);
 
-    await db.insert(logs).values({
-      command: 'turnOn',
-      status: 'success',
-      triggerType: 'schedule',
-      timerId: timer.id,
-    });
-
-    // 一度実行したら無効にする
+  // 一度実行したら無効にする。
+  // 一部のデバイスだけ失敗した場合も、成功したデバイスに翌日また送らないよう無効にする (失敗はログで確認する)
+  if (successCount > 0) {
     await db.update(timers).set({ isActive: false }).where(eq(timers.id, timer.id));
-  } catch (e: any) {
-    console.error(`Failed to execute timer ${timer.id}:`, e);
-    await db.insert(logs).values({
-      command: 'turnOn',
-      status: 'failure',
-      errorMessage: e.message,
-      triggerType: 'schedule',
-      timerId: timer.id,
-    });
   }
 }
 
