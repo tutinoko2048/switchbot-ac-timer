@@ -8,7 +8,9 @@ SwitchBotデバイス（主にエアコン）をスケジュール制御する�
 - **デバイス一覧取得**: SwitchBot APIから赤外線リモコンデバイスを取得
 - **タイマー設定**: 時刻指定での自動実行スケジュール作成
 - **バックグラウンド実行**: サーバー内のスケジューラによる定期実行
+- **運転設定**: 温度・モード・風量を指定して運転（指定しなければ前回の設定のまま電源を入れる）
 - **手動実行**: 動作確認用の手動実行機能
+- **MCP**: エージェント（LLM）からタイマーを操作できる `/mcp` エンドポイント
 - **PWA**: ホーム画面に追加して使える
 
 ## 🛠 Tech Stack
@@ -33,6 +35,8 @@ SwitchBotデバイス（主にエアコン）をスケジュール制御する�
     ├── client/           # React アプリ（routes/ がファイルベースのルーティング）
     └── server/
         ├── app.ts        # Hono のルートと AppType（開発サーバーはここを読む）
+        ├── mcp.ts        # MCP のツール定義（/mcp）
+        ├── timers.ts     # Web API と MCP で共有するタイマー操作
         ├── main.ts       # 本番用の入口（配信・スケジューラー）
         ├── env.ts        # 環境変数の検証
         ├── scheduler.ts
@@ -81,6 +85,24 @@ pnpm check   # format・lint・型チェックをまとめて実行
 pnpm lint
 pnpm fmt
 ```
+
+## 🤖 MCP
+
+`/mcp` で [MCP](https://modelcontextprotocol.io/)（Streamable HTTP）のサーバーが動いており、エージェントからタイマーを操作できます。
+
+```bash
+claude mcp add --transport http ac-timer http://<host>:3001/mcp
+```
+
+| ツール                                                           | 内容                                                           |
+| ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| `list_timers` / `create_timer` / `update_timer` / `delete_timer` | タイマーの一覧・作成・更新・削除                               |
+| `test_timer`                                                     | タイマーを今すぐ実行する                                       |
+| `list_devices`                                                   | タイマーに設定できる赤外線リモコンの一覧（名前から ID を引く） |
+| `get_logs`                                                       | 実行ログ                                                       |
+| `health`                                                         | サーバーの状態と現在のサーバー時刻                             |
+
+`/api` と同じく認証はありません。LAN やプライベートネットワークの中だけで公開してください。
 
 ## 🚢 Production
 
