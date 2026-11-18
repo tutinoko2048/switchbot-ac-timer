@@ -1,9 +1,19 @@
+export type AcMode = 'auto' | 'cool' | 'dry' | 'fan' | 'heat';
+export type AcFanSpeed = 'auto' | 'low' | 'medium' | 'high';
+
+/** エアコンの運転設定。null のタイマーは前回の設定のまま電源を入れる */
+export interface AcSettings {
+  temperature: number;
+  mode: AcMode;
+  fanSpeed: AcFanSpeed;
+}
+
 export interface Timer {
   id: number;
   name: string;
   time: string;
-  weekdays: string;
   deviceIds: string[];
+  acSettings: AcSettings | null;
   isActive: boolean;
   createdAt: string | null;
   updatedAt: string | null;

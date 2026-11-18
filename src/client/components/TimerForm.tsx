@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useDeleteTimer, useSaveTimer } from '@/lib/queries';
+import {
+  AC_FAN_SPEED_LABELS,
+  AC_MODE_LABELS,
+  AC_TEMPERATURE_MAX,
+  AC_TEMPERATURE_MIN,
+  DEFAULT_AC_SETTINGS,
+} from '@/lib/ac';
 import { formatDeviceNames } from '@/lib/devices';
-import type { SwitchBotInfraredRemote, Timer } from '@/types';
+import type { AcSettings, SwitchBotInfraredRemote, Timer } from '@/types';
 import { toast } from 'sonner';
 import { DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
@@ -17,6 +24,59 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
+function StepButton({
+  label,
+  disabled,
+  onClick,
+  children,
+}: {
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="w-9 h-9 rounded-full bg-[#3A3A3C] text-xl leading-none active:bg-[#48484A] disabled:opacity-30 transition-colors"
+    >
+      {children}
+    </button>
+  );
+}
+
+/** 選択肢を横に並べ、選ばれているものを強調する */
+function Segmented<T extends string>({
+  labels,
+  value,
+  onChange,
+}: {
+  labels: Record<T, string>;
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className="flex bg-[#1C1C1E] rounded-lg p-0.5 min-w-0">
+      {(Object.keys(labels) as T[]).map((key) => (
+        <button
+          key={key}
+          type="button"
+          aria-pressed={key === value}
+          onClick={() => onChange(key)}
+          className={`px-2.5 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors ${
+            key === value ? 'bg-[#636366] text-white' : 'text-[#99999e]'
+          }`}
+        >
+          {labels[key]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function TimerForm({
   devices,
   initialData,
@@ -30,8 +90,10 @@ export function TimerForm({
 }) {
   const [name, setName] = useState(initialData?.name || '');
   const [time, setTime] = useState(initialData?.time || '08:00');
-  const [weekdays] = useState<string[]>(initialData?.weekdays ? initialData.weekdays.split(',') : []); // 月-金
   const [deviceIds, setDeviceIds] = useState<string[]>(initialData?.deviceIds ?? []);
+  // 運転設定を指定しないときも、切り替えたときに戻せるよう値は持っておく
+  const [useAcSettings, setUseAcSettings] = useState(Boolean(initialData?.acSettings));
+  const [acSettings, setAcSettings] = useState<AcSettings>(initialData?.acSettings ?? DEFAULT_AC_SETTINGS);
   const [isActive, setIsActive] = useState(initialData ? initialData.isActive : true);
   const [isSelectingDevice, setIsSelectingDevice] = useState(false);
   const saveTimer = useSaveTimer();
@@ -56,8 +118,8 @@ export function TimerForm({
     const payload = {
       name: name || 'アラーム',
       time,
-      weekdays: weekdays.join(','),
       deviceIds,
+      acSettings: useAcSettings ? acSettings : null,
       isActive,
     };
 
@@ -172,6 +234,62 @@ export function TimerForm({
               </div>
             </button>
           </div>
+        </div>
+        {/* 運転設定 */}
+        <div>
+          <div className="bg-[#2C2C2E] rounded-lg overflow-hidden">
+            <div
+              className={`flex justify-between items-center h-14 px-4 ${useAcSettings ? 'border-b border-[#38383A]' : ''}`}
+            >
+              <span className="text-base whitespace-nowrap shrink-0">運転設定を指定</span>
+              <Switch checked={useAcSettings} onCheckedChange={setUseAcSettings} />
+            </div>
+            {useAcSettings && (
+              <>
+                <div className="flex justify-between items-center h-14 px-4 border-b border-[#38383A]">
+                  <span className="text-base whitespace-nowrap shrink-0">温度</span>
+                  <div className="flex items-center gap-3">
+                    <StepButton
+                      label="温度を下げる"
+                      disabled={acSettings.temperature <= AC_TEMPERATURE_MIN}
+                      onClick={() => setAcSettings((s) => ({ ...s, temperature: s.temperature - 1 }))}
+                    >
+                      −
+                    </StepButton>
+                    <span className="w-12 text-center text-base tabular-nums">{acSettings.temperature}℃</span>
+                    <StepButton
+                      label="温度を上げる"
+                      disabled={acSettings.temperature >= AC_TEMPERATURE_MAX}
+                      onClick={() => setAcSettings((s) => ({ ...s, temperature: s.temperature + 1 }))}
+                    >
+                      +
+                    </StepButton>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center gap-4 h-14 px-4 border-b border-[#38383A]">
+                  <span className="text-base whitespace-nowrap shrink-0">モード</span>
+                  <Segmented
+                    labels={AC_MODE_LABELS}
+                    value={acSettings.mode}
+                    onChange={(mode) => setAcSettings((s) => ({ ...s, mode }))}
+                  />
+                </div>
+                <div className="flex justify-between items-center gap-4 h-14 px-4">
+                  <span className="text-base whitespace-nowrap shrink-0">風量</span>
+                  <Segmented
+                    labels={AC_FAN_SPEED_LABELS}
+                    value={acSettings.fanSpeed}
+                    onChange={(fanSpeed) => setAcSettings((s) => ({ ...s, fanSpeed }))}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <p className="mt-2 px-4 text-xs text-[#99999e]">
+            {useAcSettings
+              ? 'この設定で電源を入れます。エアコン以外のデバイスでは使えません。'
+              : '前回の設定のまま電源を入れます。'}
+          </p>
         </div>
         {initialData && (
           <div className="mt-10">

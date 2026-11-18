@@ -1,5 +1,5 @@
 import { db } from './db';
-import { timers, logs, type Timer } from './db/schema';
+import { timers, logs, type AcSettings, type Timer } from './db/schema';
 import { switchBotClient } from './lib/switchbot';
 import { eq } from 'drizzle-orm';
 
@@ -27,22 +27,38 @@ export function minutesBetween(from: Date, to: Date): Set<string> {
   return result;
 }
 
+const MODE_CODES = { auto: 1, cool: 2, dry: 3, fan: 4, heat: 5 } as const;
+const FAN_SPEED_CODES = { auto: 1, low: 2, medium: 3, high: 4 } as const;
+
+/** setAll のパラメーター "{温度},{モード},{風量},{電源}" を組み立てる (例: "26,2,1,on") */
+export function toSetAllParameter({ temperature, mode, fanSpeed }: AcSettings) {
+  return `${temperature},${MODE_CODES[mode]},${FAN_SPEED_CODES[fanSpeed]},on`;
+}
+
 /**
- * タイマーの全デバイスに turnOn を送り、デバイスごとにログを残す。
+ * タイマーの全デバイスの電源を入れ、デバイスごとにログを残す。
+ * 運転設定があれば setAll でその設定にし、なければ turnOn (通常は前回の設定を復元する) を送る。
  * 1台が失敗しても残りのデバイスには送り続ける。
  */
 export async function sendTimerCommands(timer: Timer, triggerType: 'schedule' | 'manual') {
+  const parameter = timer.acSettings ? toSetAllParameter(timer.acSettings) : undefined;
+  // ログにはどの設定で送ったかも残す (例: "setAll 26,2,1,on")
+  const command = parameter ? `setAll ${parameter}` : 'turnOn';
+
   const failures: { deviceId: string; message: string }[] = [];
   for (const deviceId of timer.deviceIds) {
     try {
-      // 'turnOn' は通常、前回の設定を復元して電源を入れる
-      await switchBotClient.sendDeviceControl(deviceId, 'turnOn');
-      await db.insert(logs).values({ command: 'turnOn', status: 'success', triggerType, timerId: timer.id, deviceId });
+      if (parameter) {
+        await switchBotClient.sendDeviceControl(deviceId, 'setAll', parameter);
+      } else {
+        await switchBotClient.sendDeviceControl(deviceId, 'turnOn');
+      }
+      await db.insert(logs).values({ command, status: 'success', triggerType, timerId: timer.id, deviceId });
     } catch (e: any) {
-      console.error(`Failed to send turnOn to ${deviceId} (timer ${timer.id}):`, e);
+      console.error(`Failed to send ${command} to ${deviceId} (timer ${timer.id}):`, e);
       failures.push({ deviceId, message: e.message });
       await db.insert(logs).values({
-        command: 'turnOn',
+        command,
         status: 'failure',
         errorMessage: e.message,
         triggerType,
@@ -94,9 +110,7 @@ export function startScheduler() {
 
       const activeTimers = db.select().from(timers).where(eq(timers.isActive, true)).all();
       for (const timer of activeTimers) {
-        // const days = timer.weekdays.split(',');
-        // if (dueTimes.has(timer.time) && days.includes(currentDay)) {
-        // 繰り返し機能を一時的に無効化し、一度実行したら無効にする
+        // 繰り返しはせず、一度実行したら無効にする
         if (dueTimes.has(timer.time)) {
           await executeTimer(timer);
         }

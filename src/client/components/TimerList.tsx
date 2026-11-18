@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDeleteTimer, useSaveTimer, useTestTimer } from '@/lib/queries';
+import { formatAcSettings } from '@/lib/ac';
 import { formatDeviceNames } from '@/lib/devices';
 import type { Timer, SwitchBotInfraredRemote } from '@/types';
 import { toast } from 'sonner';
@@ -41,8 +42,8 @@ export function TimerList({
       input: {
         name: timer.name,
         time: timer.time,
-        weekdays: timer.weekdays,
         deviceIds: timer.deviceIds,
+        acSettings: timer.acSettings,
         isActive: !timer.isActive,
       },
     });
@@ -104,14 +105,15 @@ export function TimerList({
                     className={`text-md hidden sm:inline-block truncate ${timer.isActive ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     {timer.name} - {deviceName}
+                    {timer.acSettings && ` - ${formatAcSettings(timer.acSettings)}`}
                   </span>
                 </div>
                 {/* Mobile */}
                 <div className={`text-sm mt-1 truncate ${timer.isActive ? 'text-gray-400' : 'text-gray-500'}`}>
                   <span className="mr-2 sm:hidden">
                     {timer.name} - {deviceName}
+                    {timer.acSettings && ` - ${formatAcSettings(timer.acSettings)}`}
                   </span>
-                  {/* {formatWeekdays(timer.weekdays)} */}
                 </div>
               </div>
 

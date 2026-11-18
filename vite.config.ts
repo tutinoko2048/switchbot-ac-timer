@@ -38,8 +38,8 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       devServer({
         entry: 'src/server/app.ts',
-        // /api だけを Hono で処理し、それ以外は Vite に任せる
-        exclude: [/^(?!\/api(\/|$))/],
+        // /api と /mcp だけを Hono で処理し、それ以外は Vite に任せる
+        exclude: [/^(?!\/(api|mcp)(\/|$))/],
       }),
     ],
   };

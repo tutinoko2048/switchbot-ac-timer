@@ -36,6 +36,13 @@
       "when": 1794197260944,
       "tag": "0004_large_hemingway",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794965852562,
+      "tag": "0005_bitter_wolf_cub",
+      "breakpoints": true
     }
   ]
 }

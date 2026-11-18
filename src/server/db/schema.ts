@@ -1,12 +1,23 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
+export const AC_MODES = ['auto', 'cool', 'dry', 'fan', 'heat'] as const;
+export const AC_FAN_SPEEDS = ['auto', 'low', 'medium', 'high'] as const;
+
+/** エアコンの運転設定。SwitchBot の setAll は3つすべてを必要とするので、まとめて持つ */
+export interface AcSettings {
+  temperature: number; // ℃
+  mode: (typeof AC_MODES)[number];
+  fanSpeed: (typeof AC_FAN_SPEEDS)[number];
+}
+
 export const timers = sqliteTable('timers', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull().default('My Timer'),
   time: text('time').notNull(), // Format: "HH:MM"
-  weekdays: text('weekdays').notNull(), // Format: "0,1,2,3,4,5,6" (0=Sun)
   deviceIds: text('device_ids', { mode: 'json' }).$type<string[]>().notNull(), // 例: ["01-xxx", "02-yyy"]
+  // null なら turnOn (前回の設定を復元して電源を入れる)、指定があれば setAll でその設定にして電源を入れる
+  acSettings: text('ac_settings', { mode: 'json' }).$type<AcSettings>(),
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

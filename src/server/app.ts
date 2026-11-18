@@ -1,50 +1,33 @@
 import { Hono } from 'hono';
-import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { db } from './db';
-import { timers, logs } from './db/schema';
-import { eq, desc, sql } from 'drizzle-orm';
 import { switchBotClient } from './lib/switchbot';
-import { getSchedulerLastTickAt, sendTimerCommands } from './scheduler';
+import { handleMcpRequest } from './mcp';
+import { sendTimerCommands } from './scheduler';
+import {
+  createTimer,
+  deleteTimer,
+  getHealth,
+  getTimer,
+  listLogs,
+  listTimers,
+  timerSchema,
+  updateTimer,
+} from './timers';
 
 const app = new Hono();
 
-const timerSchema = z.object({
-  name: z.string().default('My Timer'),
-  time: z.string().regex(/^\d{2}:\d{2}$/),
-  weekdays: z.string(), // "0,1,2"
-  deviceIds: z.array(z.string()).min(1),
-  isActive: z.boolean().default(true),
-});
-
-// スケジューラーのチェック間隔 (15秒) に対して、これ以上止まっていたら異常とみなす
-const SCHEDULER_STALE_MS = 60_000;
-
 // Uptime Kuma などの監視用。異常時は 503 を返す
 app.get('/api/health', (c) => {
-  let dbOk = true;
-  try {
-    db.get(sql`select 1`);
-  } catch (e) {
-    console.error('Health check: DB error:', e);
-    dbOk = false;
-  }
-
-  // 開発サーバーではスケジューラーを起動しないので null になる
-  const lastTickAt = getSchedulerLastTickAt();
-  const schedulerOk = !lastTickAt || Date.now() - lastTickAt.getTime() < SCHEDULER_STALE_MS;
-
-  const ok = dbOk && schedulerOk;
-  return c.json(
-    {
-      status: ok ? 'ok' : 'error',
-      db: dbOk ? 'ok' : 'error',
-      scheduler: { status: schedulerOk ? 'ok' : 'stale', lastTickAt },
-      uptime: Math.floor(process.uptime()),
-    },
-    ok ? 200 : 503,
-  );
+  const { ok, body } = getHealth();
+  return c.json(body, ok ? 200 : 503);
 });
+
+// エージェント (LLM) 向けの MCP (Streamable HTTP)。/api と同じく認証はない
+app.post('/mcp', handleMcpRequest);
+// セッションを持たないので、サーバーからの通知用の GET (SSE) やセッション終了の DELETE は受け付けない
+app.all('/mcp', (c) =>
+  c.json({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null }, 405, { Allow: 'POST' }),
+);
 
 const routes = app
   .get('/api/devices', async (c) => {
@@ -55,37 +38,31 @@ const routes = app
       return c.json({ error: e.message }, 500);
     }
   })
-  .get('/api/timers', async (c) => {
-    const allTimers = db.select().from(timers).orderBy(timers.time).all();
-    return c.json(allTimers);
+  .get('/api/timers', (c) => c.json(listTimers()))
+  .get('/api/logs', (c) => c.json(listLogs()))
+  .post('/api/timers', zValidator('json', timerSchema), (c) => {
+    const timer = createTimer(c.req.valid('json'));
+    console.log('Created timer:', timer);
+    return c.json(timer);
   })
-  .get('/api/logs', async (c) => {
-    const allLogs = db.select().from(logs).orderBy(desc(logs.executedAt)).limit(15).all();
-    return c.json(allLogs);
+  .put('/api/timers/:id', zValidator('json', timerSchema), (c) => {
+    const timer = updateTimer(parseInt(c.req.param('id')), c.req.valid('json'));
+    if (!timer) {
+      return c.json({ error: 'Timer not found' }, 404);
+    }
+    console.log('Updated timer:', timer);
+    return c.json(timer);
   })
-  .post('/api/timers', zValidator('json', timerSchema), async (c) => {
-    const data = c.req.valid('json');
-    const result = await db.insert(timers).values(data).returning();
-    console.log('Created timer:', result);
-    return c.json(result[0]);
-  })
-  .put('/api/timers/:id', zValidator('json', timerSchema), async (c) => {
+  .delete('/api/timers/:id', (c) => {
     const id = parseInt(c.req.param('id'));
-    const data = c.req.valid('json');
-    const result = await db.update(timers).set(data).where(eq(timers.id, id)).returning();
-    console.log('Updated timer:', result);
-    return c.json(result[0]);
-  })
-  .delete('/api/timers/:id', async (c) => {
-    const id = parseInt(c.req.param('id'));
-    await db.delete(timers).where(eq(timers.id, id));
+    if (!deleteTimer(id)) {
+      return c.json({ error: 'Timer not found' }, 404);
+    }
     console.log('Deleted timer with id:', id);
     return c.json({ success: true });
   })
   .post('/api/timers/:id/test', async (c) => {
-    const id = parseInt(c.req.param('id'));
-    const timer = db.select().from(timers).where(eq(timers.id, id)).get();
-
+    const timer = getTimer(parseInt(c.req.param('id')));
     if (!timer) {
       return c.json({ error: 'Timer not found' }, 404);
     }
