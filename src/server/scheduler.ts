@@ -40,27 +40,28 @@ type SendResult = { deviceId: string; command: string } & (
   | { status: 'failure'; errorMessage: string }
 );
 
+type OnResult = (result: SendResult) => Promise<unknown>;
+
 /**
- * デバイスの電源を入れる。
- * 運転設定があれば setAll でその設定にし、なければ turnOn (通常は前回の設定を復元する) を送る。
+ * 全デバイスに同じコマンドを送る。
  * 1台が失敗しても残りのデバイスには送り続ける。onResult はデバイスごとに呼ばれる (ログを残すのに使う)
  */
-export async function sendTurnOnCommands(
+async function sendCommands(
   deviceIds: string[],
-  acSettings: AcSettings | null,
-  onResult?: (result: SendResult) => Promise<unknown>,
+  commandName: string,
+  parameter: string | undefined,
+  onResult?: OnResult,
 ) {
-  const parameter = acSettings ? toSetAllParameter(acSettings) : undefined;
   // ログにはどの設定で送ったかも残す (例: "setAll 26,2,1,on")
-  const command = parameter ? `setAll ${parameter}` : 'turnOn';
+  const command = parameter ? `${commandName} ${parameter}` : commandName;
 
   const failures: { deviceId: string; message: string }[] = [];
   for (const deviceId of deviceIds) {
     try {
       if (parameter) {
-        await switchBotClient.sendDeviceControl(deviceId, 'setAll', parameter);
+        await switchBotClient.sendDeviceControl(deviceId, commandName, parameter);
       } else {
-        await switchBotClient.sendDeviceControl(deviceId, 'turnOn');
+        await switchBotClient.sendDeviceControl(deviceId, commandName);
       }
       await onResult?.({ deviceId, command, status: 'success' });
     } catch (e: any) {
@@ -70,6 +71,20 @@ export async function sendTurnOnCommands(
     }
   }
   return { successCount: deviceIds.length - failures.length, failures };
+}
+
+/**
+ * デバイスの電源を入れる。
+ * 運転設定があれば setAll でその設定にし、なければ turnOn (通常は前回の設定を復元する) を送る
+ */
+export async function sendTurnOnCommands(deviceIds: string[], acSettings: AcSettings | null, onResult?: OnResult) {
+  if (acSettings) return sendCommands(deviceIds, 'setAll', toSetAllParameter(acSettings), onResult);
+  return sendCommands(deviceIds, 'turnOn', undefined, onResult);
+}
+
+/** デバイスの電源を切る */
+export async function sendTurnOffCommands(deviceIds: string[], onResult?: OnResult) {
+  return sendCommands(deviceIds, 'turnOff', undefined, onResult);
 }
 
 /** タイマーの全デバイスの電源を入れ、デバイスごとにログを残す */
