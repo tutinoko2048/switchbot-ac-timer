@@ -2,7 +2,7 @@ import type { Context } from 'hono';
 import { StreamableHTTPTransport } from '@hono/mcp';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { sendTimerCommands } from './scheduler';
+import { sendTimerCommands, sendTurnOnCommands } from './scheduler';
 import {
   acSettingsSchema,
   createTimer,
@@ -112,6 +112,23 @@ function createMcpServer() {
       if (!timer) return timerNotFound(id);
 
       const result = await sendTimerCommands(timer, 'manual');
+      return { ...json(result), isError: result.failures.length > 0 };
+    },
+  );
+
+  server.registerTool(
+    'turn_on_devices',
+    {
+      description:
+        'タイマーを使わずに、指定したデバイスの電源を今すぐ入れる。タイマーは作成・変更されず、実行ログにも残らない。デバイスごとの成否を返す',
+      inputSchema: {
+        deviceIds: timerInput.deviceIds,
+        acSettings: timerInput.acSettings.optional(),
+      },
+      annotations: { openWorldHint: true },
+    },
+    async ({ deviceIds, acSettings }) => {
+      const result = await sendTurnOnCommands(deviceIds, acSettings ?? null);
       return { ...json(result), isError: result.failures.length > 0 };
     },
   );

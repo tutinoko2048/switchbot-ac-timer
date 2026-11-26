@@ -35,39 +35,48 @@ export function toSetAllParameter({ temperature, mode, fanSpeed }: AcSettings) {
   return `${temperature},${MODE_CODES[mode]},${FAN_SPEED_CODES[fanSpeed]},on`;
 }
 
+type SendResult = { deviceId: string; command: string } & (
+  | { status: 'success' }
+  | { status: 'failure'; errorMessage: string }
+);
+
 /**
- * タイマーの全デバイスの電源を入れ、デバイスごとにログを残す。
+ * デバイスの電源を入れる。
  * 運転設定があれば setAll でその設定にし、なければ turnOn (通常は前回の設定を復元する) を送る。
- * 1台が失敗しても残りのデバイスには送り続ける。
+ * 1台が失敗しても残りのデバイスには送り続ける。onResult はデバイスごとに呼ばれる (ログを残すのに使う)
  */
-export async function sendTimerCommands(timer: Timer, triggerType: 'schedule' | 'manual') {
-  const parameter = timer.acSettings ? toSetAllParameter(timer.acSettings) : undefined;
+export async function sendTurnOnCommands(
+  deviceIds: string[],
+  acSettings: AcSettings | null,
+  onResult?: (result: SendResult) => Promise<unknown>,
+) {
+  const parameter = acSettings ? toSetAllParameter(acSettings) : undefined;
   // ログにはどの設定で送ったかも残す (例: "setAll 26,2,1,on")
   const command = parameter ? `setAll ${parameter}` : 'turnOn';
 
   const failures: { deviceId: string; message: string }[] = [];
-  for (const deviceId of timer.deviceIds) {
+  for (const deviceId of deviceIds) {
     try {
       if (parameter) {
         await switchBotClient.sendDeviceControl(deviceId, 'setAll', parameter);
       } else {
         await switchBotClient.sendDeviceControl(deviceId, 'turnOn');
       }
-      await db.insert(logs).values({ command, status: 'success', triggerType, timerId: timer.id, deviceId });
+      await onResult?.({ deviceId, command, status: 'success' });
     } catch (e: any) {
-      console.error(`Failed to send ${command} to ${deviceId} (timer ${timer.id}):`, e);
+      console.error(`Failed to send ${command} to ${deviceId}:`, e);
       failures.push({ deviceId, message: e.message });
-      await db.insert(logs).values({
-        command,
-        status: 'failure',
-        errorMessage: e.message,
-        triggerType,
-        timerId: timer.id,
-        deviceId,
-      });
+      await onResult?.({ deviceId, command, status: 'failure', errorMessage: e.message });
     }
   }
-  return { successCount: timer.deviceIds.length - failures.length, failures };
+  return { successCount: deviceIds.length - failures.length, failures };
+}
+
+/** タイマーの全デバイスの電源を入れ、デバイスごとにログを残す */
+export async function sendTimerCommands(timer: Timer, triggerType: 'schedule' | 'manual') {
+  return sendTurnOnCommands(timer.deviceIds, timer.acSettings, (result) =>
+    db.insert(logs).values({ ...result, triggerType, timerId: timer.id }),
+  );
 }
 
 async function executeTimer(timer: Timer) {
